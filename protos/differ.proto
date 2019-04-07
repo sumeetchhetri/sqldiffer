@@ -1,0 +1,118 @@
+syntax = "proto2";
+option go_package = "differ_pb2";
+
+message Db
+{
+	required string name = 1;
+	optional string schemaName = 2;
+    repeated Table tables = 3;
+    repeated StoredProcedure storedProcs = 4;
+    repeated View views = 5;
+    repeated Sequence sequences = 6;
+	optional bool duplicateProcNamesAllowed = 7;
+	enum DbType
+	{
+		ORACLE = 0;
+		POSTGRESQL = 1;
+		SQLSERVER = 2;
+		MYSQL = 3;
+	}
+	required DbType type = 8;
+}
+
+message Table
+{
+	required string name = 1;
+    repeated Column columns = 2;
+    repeated Trigger triggers = 3;
+    repeated Index indexes = 4;
+    repeated Constraint constraints = 5;
+	optional bool isTemp = 6 [default = false];
+}
+
+message Column
+{
+	required int32 pos = 1;
+    required string name = 2;
+    optional bool notnull = 3;
+    optional int64 length = 4;
+    required string type = 5;
+    optional int64 precision = 6;
+    optional int64 scale = 7;
+    optional string defVal = 8;
+    required string tableName = 9;
+}
+
+message Trigger
+{
+	required string name = 1;
+    required string tableName = 2;
+    optional string when = 3;
+    required string action = 4;
+    optional string function = 5;
+    optional string functionDef = 6;
+    optional string definition = 7;
+}
+
+message Index
+{
+	required string name = 1;
+    required string tableName = 2;
+    optional string definition = 3;
+    required string columns = 4;
+    map<string, string> props = 5;
+}
+
+message Constraint
+{
+	required string name = 1;
+    required string definition = 2;
+    required string type = 3;
+    repeated string columns = 4;
+    required string tableName = 5;
+    required string tableView = 6;
+    optional string targetTableName = 7;
+    optional string targetColumnName = 8;
+    optional string condition = 9;
+}
+
+message StoredProcedure
+{
+	required string name = 1;
+    optional string declaration = 2;
+    required string dropDeclaration = 3;
+    optional string definition = 4;
+    repeated StoredProcedureParam params = 5;
+    required int32 numParams = 6;
+}
+
+message StoredProcedureParam
+{
+	required string name = 1;
+    required string type = 2;
+    required string mode = 3;
+    required int32 position = 4;
+    optional string defVal = 5;
+    optional string procName = 6;
+}
+
+message View
+{
+	required string name = 1;
+    optional string type = 2;
+    required string definition = 3;
+    optional int32 weight = 4 [default = 0];
+}
+
+message Sequence
+{
+	required string name = 1;
+    optional string defVal = 2;
+    optional string cycle = 3;
+    optional string min = 4;
+    optional string max = 5;
+    optional string inc = 6;
+    optional string cache = 7;
+    optional string order = 8;
+    optional string type = 9;
+}
