@@ -17,10 +17,8 @@ type OrclStoredProcedureParam struct {
 //Query -
 func (db *OrclStoredProcedureParam) Query(context interface{}) string {
 	args := context.([]interface{})
-	start := args[0].(int)
-	end := args[1].(int)
-	return fmt.Sprintf(`SELECT outer.* FROM (SELECT position,argument_name,data_type,data_length,data_precision,in_out,object_name,rownum rn,'OR' 
-		FROM user_arguments) outer where outer.rn >= %d and outer.rn < %d`, start, end)
+	return fmt.Sprintf(`SELECT position,argument_name,data_type,data_length,data_precision,in_out,object_name,0 rn,'OR' 
+		FROM user_arguments offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
 //FromResult -

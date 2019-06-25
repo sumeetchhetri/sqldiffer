@@ -101,8 +101,8 @@ func (db *OrclColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 //Query -
 func (db *OrclColumn) Query(context interface{}) string {
 	args := context.([]interface{})
-	return fmt.Sprintf(`SELECT outer.* FROM (SELECT column_id,column_name,nullable,data_type,data_length,data_precision,data_scale,data_default,table_name,rownum rn 
-		from user_tab_columns) outer where outer.rn >= %d and outer.rn < %d`, args[0].(int), args[1].(int))
+	return fmt.Sprintf(`SELECT column_id,column_name,nullable,data_type,data_length,data_precision,data_scale,data_default,table_name,0 rn 
+		from user_tab_columns offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
 //FromResult -

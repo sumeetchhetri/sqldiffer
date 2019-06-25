@@ -18,6 +18,11 @@ func (db *PgDb) GenerateURL(det *c.SchemaDiffAction) string {
 		*det.Host, det.Port, *det.User, *det.Password, *det.DatabaseName, *det.SchemaName)
 }
 
+//Version -
+func (db *PgDb) Version() string {
+	return "SELECT current_setting('server_version_num')"
+}
+
 //Preface -
 func (db *PgDb) Preface(dbe *pb2.Db) string {
 	var b bytes.Buffer
@@ -41,7 +46,7 @@ func (db *PgDb) Preface(dbe *pb2.Db) string {
 
 //Create -
 func (db *PgDb) Create(dbe *pb2.Db) string {
-	return fmt.Sprintf("\nCREATE DATABASE%s;\n", *dbe.Name)
+	return fmt.Sprintf("\nCREATE DATABASE %s;\n", *dbe.Name)
 }
 
 //Connect -
@@ -51,5 +56,5 @@ func (db *PgDb) Connect(dbe *pb2.Db) string {
 
 //CreateSchema -
 func (db *PgDb) CreateSchema(dbe *pb2.Db) string {
-	return fmt.Sprintf("\nCREATE SCHEMA%s;\n", *dbe.Name)
+	return fmt.Sprintf("\nCREATE SCHEMA %s;\n", *dbe.Name)
 }

@@ -18,6 +18,11 @@ func (db *OrclDb) GenerateURL(det *c.SchemaDiffAction) string {
 		*det.User, *det.Password, *det.Host, det.Port, *det.DatabaseName)
 }
 
+//Version -
+func (db *OrclDb) Version() string {
+	return ""
+}
+
 //Preface -
 func (db *OrclDb) Preface(dbe *pb2.Db) string {
 	var b bytes.Buffer

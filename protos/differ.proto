@@ -17,7 +17,8 @@ message Db
 		SQLSERVER = 2;
 		MYSQL = 3;
 	}
-	required DbType type = 8;
+    required DbType type = 8;
+    optional string version = 9;
 }
 
 message Table
@@ -59,18 +60,18 @@ message Index
 	required string name = 1;
     required string tableName = 2;
     optional string definition = 3;
-    required string columns = 4;
+    repeated string columns = 4;
     map<string, string> props = 5;
 }
 
 message Constraint
 {
 	required string name = 1;
-    required string definition = 2;
+    optional string definition = 2;
     required string type = 3;
     repeated string columns = 4;
     required string tableName = 5;
-    required string tableView = 6;
+    optional string tableView = 6;
     optional string targetTableName = 7;
     optional string targetColumnName = 8;
     optional string condition = 9;
@@ -80,7 +81,7 @@ message StoredProcedure
 {
 	required string name = 1;
     optional string declaration = 2;
-    required string dropDeclaration = 3;
+    optional string dropDeclaration = 3;
     optional string definition = 4;
     repeated StoredProcedureParam params = 5;
     required int32 numParams = 6;

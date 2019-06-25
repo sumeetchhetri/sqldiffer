@@ -19,6 +19,11 @@ func (db *SqlsDb) GenerateURL(det *c.SchemaDiffAction) string {
 		*det.User, *det.Password, *det.Host, det.Port, *det.DatabaseName)
 }
 
+//Version -
+func (db *SqlsDb) Version() string {
+	return ""
+}
+
 //Preface -
 func (db *SqlsDb) Preface(dbe *pb2.Db) string {
 	var b bytes.Buffer

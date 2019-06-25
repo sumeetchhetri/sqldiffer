@@ -21,6 +21,11 @@ func (db *MysqlDb) GenerateURL(det *c.SchemaDiffAction) string {
 		*det.User, *det.Password, *det.Host, det.Port, *det.DatabaseName)
 }
 
+//Version -
+func (db *MysqlDb) Version() string {
+	return ""
+}
+
 //Preface -
 func (db *MysqlDb) Preface(dbe *pb2.Db) string {
 	var b bytes.Buffer

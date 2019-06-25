@@ -4,7 +4,7 @@ import (
 	"bytes"
 	sql "database/sql"
 	"fmt"
-	"regexp"
+	//"regexp"
 	c "sqldiffer/common"
 	"strings"
 	//"fmt"
@@ -18,18 +18,40 @@ type OrclConstraint struct {
 
 //GenerateNew -
 func (db *OrclConstraint) GenerateNew(cn *pb2.Constraint, context interface{}) string {
-	if *cn.Type == "P" || *cn.Type == "U" || *cn.Type == "R" {
-		ats := *cn.Definition
-		re := regexp.MustCompile("([a-zA-Z]+)([\t\n ]+)ALTER TABLE")
-		if re.MatchString(ats) {
-			ats = re.ReplaceAllString(ats, "$1\n\nALTER TABLE")
-			ats = strings.ReplaceAll(ats, "\n\n", ";\n/\n")
-			ats = ats + ";\n/"
-		} else {
-			ats = ats + ";\n/"
-		}
-		//fmt.Println(ats)
-		return ats
+	if *cn.Type == "U" {
+		var b bytes.Buffer
+		b.WriteString("\nALTER TABLE ")
+		b.WriteString(*cn.TableName)
+		b.WriteString(" ADD CONSTRAINT ")
+		b.WriteString(*cn.Name)
+		b.WriteString(" UNIQUE(")
+		b.WriteString(strings.Join(cn.Columns, ","))
+		b.WriteString(");\n/")
+		return b.String()
+	} else if *cn.Type == "P" {
+		var b bytes.Buffer
+		b.WriteString("\nALTER TABLE ")
+		b.WriteString(*cn.TableName)
+		b.WriteString(" ADD CONSTRAINT ")
+		b.WriteString(*cn.Name)
+		b.WriteString(" PRIMARY KEY(")
+		b.WriteString(strings.Join(cn.Columns, ","))
+		b.WriteString(");\n/")
+		return b.String()
+	} else if *cn.Type == "R" {
+		var b bytes.Buffer
+		b.WriteString("\nALTER TABLE ")
+		b.WriteString(*cn.TableName)
+		b.WriteString(" ADD CONSTRAINT ")
+		b.WriteString(*cn.Name)
+		b.WriteString(" FOREIGN KEY(")
+		b.WriteString(cn.Columns[0])
+		b.WriteString(") REFERENCES ")
+		b.WriteString(*cn.TargetTableName)
+		b.WriteString("(")
+		b.WriteString(*cn.TargetColumnName)
+		b.WriteString(");\n/")
+		return b.String()
 	}
 	if strings.Index(*cn.Condition, " IS NOT NULL") > 0 {
 		var b bytes.Buffer
@@ -70,22 +92,32 @@ func (db *OrclConstraint) GenerateDel(cn *pb2.Constraint, context interface{}) s
 	return b.String()
 }
 
+//CountQuery -
+func (db *OrclConstraint) CountQuery(context interface{}) string {
+	return "select count(1) FROM user_constraints"
+}
+
 //Query -
 func (db *OrclConstraint) Query(context interface{}) string {
 	args := context.([]interface{})
-	return fmt.Sprintf(`SELECT outer.* FROM (
-		select cols.table_name, cons.constraint_name, 
-			CASE cons.constraint_type
-				WHEN 'P' THEN DBMS_METADATA.GET_DDL('CONSTRAINT', cons.constraint_name)
-				WHEN 'U' THEN DBMS_METADATA.GET_DDL('CONSTRAINT', cons.constraint_name)
-				--WHEN 'C' THEN DBMS_METADATA.GET_DDL('CONSTRAINT', cons.constraint_name)
-				WHEN 'R' THEN DBMS_METADATA.get_dependent_ddl('REF_CONSTRAINT', cols.table_name)
-			END AS definition,
-			COALESCE(cons.SEARCH_CONDITION_VC,' '), cons.constraint_type, cols.column_name,rownum rn,'' a,'' b,'' c
-					FROM user_constraints cons INNER join user_cons_columns cols ON cons.constraint_name = cols.constraint_name 
-					AND cons.owner = cols.owner AND cons.status = 'ENABLED' 
-					ORDER BY cols.table_name, cols.POSITION
-		) outer where outer.rn >= %d and outer.rn < %d`, args[0].(int), args[1].(int))
+	return fmt.Sprintf(`select * from (
+		select cols.table_name, cons.constraint_name,'',
+			COALESCE(cons.SEARCH_CONDITION_VC,' '), cons.constraint_type, cols.column_name,0 rn,'' a,'' b,'' c
+			FROM user_constraints cons INNER join user_cons_columns cols ON cons.constraint_name = cols.constraint_name 
+			AND cons.owner = cols.owner AND cons.status = 'ENABLED' 
+			AND cols.table_name IN (SELECT table_name FROM user_tables)
+			AND cons.generated = 'USER NAME' AND cons.constraint_type <> 'R'
+		UNION ALL
+		SELECT a.table_name, a.constraint_name, '','','R', a.column_name, 0 rn, c_pk.table_name, b.column_name, ''              
+		  FROM user_cons_columns a
+		  JOIN user_constraints c ON a.owner = c.owner
+								AND a.constraint_name = c.constraint_name
+		  JOIN user_constraints c_pk ON c.r_owner = c_pk.owner
+								   AND c.r_constraint_name = c_pk.constraint_name
+		  JOIN user_cons_columns b ON a.owner = b.owner
+								AND c_pk.constraint_name = b.constraint_name
+		 WHERE c.constraint_type = 'R'
+		 AND c.generated = 'USER NAME') offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
 //FromResult -

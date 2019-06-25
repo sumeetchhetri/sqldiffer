@@ -37,7 +37,7 @@ func (db *MysqlSequence) FromResult(rows *sql.Rows, context interface{}) *pb2.Se
 }
 
 //ExQuery -
-func (db *MysqlSequence) ExQuery(name string) string {
+func (db *MysqlSequence) ExQuery(context interface{}) string {
 	return ""
 }
 

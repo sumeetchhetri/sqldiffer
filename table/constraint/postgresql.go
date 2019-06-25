@@ -46,6 +46,11 @@ func (db *PgConstraint) GenerateDel(cn *pb2.Constraint, context interface{}) str
 	return b.String()
 }
 
+//CountQuery -
+func (db *PgConstraint) CountQuery(context interface{}) string {
+	return ""
+}
+
 //Query -
 func (db *PgConstraint) Query(context interface{}) string {
 	args := context.([]interface{})

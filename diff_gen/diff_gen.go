@@ -128,15 +128,17 @@ func generate(action *c.SchemaDiffAction) {
 		c.Fatal("Unable to un-marshal source schema file contents", err)
 	}
 
-	b, err = ioutil.ReadFile(*action.TargetSchemaFile)
-	if err != nil {
-		c.Fatal("Unable to read target schema file", err)
-	}
-
 	dbdst := pb2.Db{}
-	err = proto.Unmarshal(b, &dbdst)
-	if err != nil {
-		c.Fatal("Unable to un-marshal target schema file contents", err)
+	b, err = ioutil.ReadFile(*action.TargetSchemaFile)
+	if err == nil {
+		err = proto.Unmarshal(b, &dbdst)
+		if err != nil {
+			c.Fatal("Unable to un-marshal target schema file contents", err)
+		}
+	} else {
+		if *action.TargetDatabaseType == "postgres" {
+			dbdst.SchemaName = proto.String("public")
+		}
 	}
 
 	generateDiff(&dbsrc, &dbdst, action, false)

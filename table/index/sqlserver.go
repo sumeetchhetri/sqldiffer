@@ -39,6 +39,11 @@ func (db *SqlsIndex) GenerateDel(in *pb2.Index, context interface{}) string {
 	return b.String()
 }
 
+//CountQuery -
+func (db *SqlsIndex) CountQuery(context interface{}) string {
+	return ""
+}
+
 //Query -
 func (db *SqlsIndex) Query(context interface{}) string {
 	return `select t.[name] as table_view, i.[name] as index_name,'',

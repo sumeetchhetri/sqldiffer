@@ -18,7 +18,29 @@ func (db *SqlsSequence) GenerateNew(seq *pb2.Sequence, context interface{}) stri
 	var b bytes.Buffer
 	b.WriteString("\nGO\nCREATE SEQUENCE [")
 	b.WriteString(*seq.Name)
-	b.WriteString("];\n")
+	b.WriteString("]")
+	if seq.Min != nil {
+		b.WriteString(" MINVALUE ")
+		b.WriteString(*seq.Min)
+	}
+	if seq.Max != nil {
+		b.WriteString(" MAXVALUE ")
+		b.WriteString(*seq.Max)
+	}
+	if seq.Cycle != nil && *seq.Cycle == "Y" {
+		b.WriteString(" CYCLE")
+	} else {
+		b.WriteString(" NOCYCLE")
+	}
+	if seq.Cache != nil {
+		b.WriteString(" CACHE ")
+		b.WriteString(*seq.Cache)
+	}
+	if seq.Inc != nil {
+		b.WriteString(" INCREMENT BY ")
+		b.WriteString(*seq.Inc)
+	}
+	b.WriteString(";\n")
 	return b.String()
 }
 
@@ -58,7 +80,7 @@ func (db *SqlsSequence) FromResult(rows *sql.Rows, context interface{}) *pb2.Seq
 }
 
 //ExQuery -
-func (db *SqlsSequence) ExQuery(name string) string {
+func (db *SqlsSequence) ExQuery(context interface{}) string {
 	return ""
 }
 

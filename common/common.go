@@ -14,6 +14,7 @@ import (
 //DbIntf - The Db Interface Type
 type DbIntf interface {
 	GenerateURL(action *SchemaDiffAction) string
+	Version() string
 	Preface(dbe *pb2.Db) string
 	Create(db *pb2.Db) string
 	Connect(db *pb2.Db) string
@@ -43,6 +44,7 @@ type ConstraintIntf interface {
 	GenerateNew(tbl *pb2.Constraint, context interface{}) string
 	GenerateUpd(tbl *pb2.Constraint, context interface{}) string
 	GenerateDel(tbl *pb2.Constraint, context interface{}) string
+	CountQuery(context interface{}) string
 	Query(context interface{}) string
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Table
 }
@@ -52,6 +54,7 @@ type IndexIntf interface {
 	GenerateNew(tbl *pb2.Index, context interface{}) string
 	GenerateUpd(tbl *pb2.Index, context interface{}) string
 	GenerateDel(tbl *pb2.Index, context interface{}) string
+	CountQuery(context interface{}) string
 	Query(context interface{}) string
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Index
 }
@@ -83,7 +86,7 @@ type SequenceIntf interface {
 	GenerateDel(tbl *pb2.Sequence, context interface{}) string
 	Query(context interface{}) string
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Sequence
-	ExQuery(name string) string
+	ExQuery(context interface{}) string
 	UpdateSequence(rows *sql.Rows, s *pb2.Sequence)
 }
 
@@ -126,6 +129,7 @@ type SchemaDiffAction struct {
 	DiffFileName              *string
 	DiffOptions               *string
 	DuplicateProcNamesAllowed bool
+	StoreProcFiles            bool
 	Db                        DbIntf
 	Table                     TableIntf
 	Column                    ColumnIntf
@@ -140,6 +144,7 @@ type SchemaDiffAction struct {
 	Tables                    map[string]*pb2.Table
 	TablesP                   map[string]bool
 	Indexes                   map[string][]*pb2.Index
+	Indexess                  map[string]*pb2.Index
 	Triggers                  map[string][]*pb2.Trigger
 	Constraints               map[string]*pb2.Constraint
 }
@@ -526,9 +531,31 @@ func GetTableFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 func GetTriggerFromRow(rows *sql.Rows, context interface{}) *pb2.Trigger {
 	sp := pb2.Trigger{}
 
-	err := rows.Scan(&sp.Name, &sp.TableName, &sp.When, &sp.Action, &sp.Function, &sp.FunctionDef, &sp.Definition)
+	var (
+		funct    sql.NullString
+		functdef sql.NullString
+		def      sql.NullString
+	)
+
+	err := rows.Scan(&sp.Name, &sp.TableName, &sp.When, &sp.Action, &funct, &functdef, &def)
 	if err != nil {
 		Fatal("Error fetching details from database", err)
+	}
+
+	if funct.Valid {
+		sp.Function = proto.String(funct.String)
+	} else {
+		sp.Function = proto.String("")
+	}
+	if functdef.Valid {
+		sp.FunctionDef = proto.String(functdef.String)
+	} else {
+		sp.FunctionDef = proto.String("")
+	}
+	if def.Valid {
+		sp.Definition = proto.String(def.String)
+	} else {
+		sp.Definition = proto.String("")
 	}
 
 	return &sp
@@ -561,24 +588,54 @@ func MergeDuplicates(triggers []*pb2.Trigger) []*pb2.Trigger {
 //GetIndexFromRow -
 func GetIndexFromRow(rows *sql.Rows, context interface{}) *pb2.Index {
 	sp := pb2.Index{}
+	args := context.([]interface{})
+	indxsColMap := args[0].(map[string]*pb2.Index)
 
 	sp.Props = make(map[string]string)
 
 	var (
-		arg1 string
-		arg2 string
+		arg1 sql.NullString
+		arg2 sql.NullString
+		col  string
 	)
 
-	err := rows.Scan(&sp.TableName, &sp.Name, &sp.Definition, &sp.Columns, &arg1, &arg2)
+	err := rows.Scan(&sp.TableName, &sp.Name, &sp.Definition, &col, &arg1, &arg2)
 	if err != nil {
 		Fatal("Error fetching details from database", err)
 	}
 
-	if arg1 != "" {
-		sp.Props["Type"] = arg1
+	if sp.Definition == nil {
+		sp.Definition = proto.String("")
 	}
-	if arg2 != "" {
-		sp.Props["Unique"] = arg2
+
+	if col != "" {
+		exsp, ok := indxsColMap[*sp.Name]
+		if ok {
+			if strings.Index(col, ",") == -1 {
+				exsp.Columns = append(exsp.Columns, col)
+			} else {
+				cols := strings.Split(col, ",")
+				for _, c := range cols {
+					exsp.Columns = append(exsp.Columns, strings.TrimSpace(c))
+				}
+			}
+		}
+		sp.Columns = make([]string, 0)
+		if strings.Index(col, ",") == -1 {
+			sp.Columns = append(sp.Columns, col)
+		} else {
+			cols := strings.Split(col, ",")
+			for _, c := range cols {
+				sp.Columns = append(sp.Columns, strings.TrimSpace(c))
+			}
+		}
+	}
+
+	if arg1.Valid {
+		sp.Props["Arg1"] = arg1.String
+	}
+	if arg2.Valid {
+		sp.Props["Arg2"] = arg2.String
 	}
 
 	return &sp
@@ -599,6 +656,10 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 		Fatal("Error fetching Constraint Row details from database", err)
 	}
 
+	if sp.Definition == nil {
+		sp.Definition = proto.String("")
+	}
+
 	if col != "" {
 		exsp, ok := consColMap[*sp.Name]
 		if ok {
@@ -610,7 +671,6 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 					exsp.Columns = append(exsp.Columns, strings.TrimSpace(c))
 				}
 			}
-			return nil
 		}
 		sp.Columns = make([]string, 0)
 		if strings.Index(col, ",") == -1 {
@@ -746,6 +806,8 @@ func GetViewFromRow(rows *sql.Rows, context interface{}) *pb2.View {
 	if err != nil {
 		Fatal("Error fetching details from database", err)
 	}
+
+	sp.Weight = proto.Int32(0)
 	return &sp
 }
 

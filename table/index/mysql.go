@@ -7,7 +7,7 @@ import (
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
 	pb2 "sqldiffer/protos"
-	//"strings"
+	"strings"
 )
 
 //MysqlIndex -
@@ -19,11 +19,11 @@ func (db *MysqlIndex) GenerateNew(in *pb2.Index, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nCREATE ")
 	var typ, uniq string
-	v, ok := in.Props["Type"]
+	v, ok := in.Props["Arg1"]
 	if ok {
 		typ = v
 	}
-	v, ok = in.Props["Unique"]
+	v, ok = in.Props["Arg2"]
 	if ok {
 		uniq = v
 	}
@@ -47,7 +47,7 @@ func (db *MysqlIndex) GenerateNew(in *pb2.Index, context interface{}) string {
 	b.WriteString("ON ")
 	b.WriteString(*in.TableName)
 	b.WriteString("(")
-	b.WriteString(*in.Columns)
+	b.WriteString(strings.Join(in.Columns, ","))
 	b.WriteString(");\n")
 	return b.String()
 }
@@ -67,6 +67,11 @@ func (db *MysqlIndex) GenerateDel(in *pb2.Index, context interface{}) string {
 	b.WriteString(*in.Name)
 	b.WriteString(";\n")
 	return b.String()
+}
+
+//CountQuery -
+func (db *MysqlIndex) CountQuery(context interface{}) string {
+	return ""
 }
 
 //Query -

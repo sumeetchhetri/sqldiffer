@@ -36,6 +36,11 @@ func (db *PgIndex) GenerateDel(in *pb2.Index, context interface{}) string {
 	return b.String()
 }
 
+//CountQuery -
+func (db *PgIndex) CountQuery(context interface{}) string {
+	return ""
+}
+
 //Query -
 func (db *PgIndex) Query(context interface{}) string {
 	return `select tablename,indexname,indexdef,'','','' from pg_indexes where schemaname = ANY(current_schemas(false))`

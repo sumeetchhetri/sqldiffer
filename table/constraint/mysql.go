@@ -69,6 +69,11 @@ func (db *MysqlConstraint) GenerateDel(cn *pb2.Constraint, context interface{}) 
 	return b.String()
 }
 
+//CountQuery -
+func (db *MysqlConstraint) CountQuery(context interface{}) string {
+	return ""
+}
+
 //Query -
 func (db *MysqlConstraint) Query(context interface{}) string {
 	args := context.([]interface{})

@@ -74,6 +74,11 @@ func (db *SqlsConstraint) GenerateDel(cn *pb2.Constraint, context interface{}) s
 	return b.String()
 }
 
+//CountQuery -
+func (db *SqlsConstraint) CountQuery(context interface{}) string {
+	return ""
+}
+
 //Query -
 func (db *SqlsConstraint) Query(context interface{}) string {
 	args := context.([]interface{})
