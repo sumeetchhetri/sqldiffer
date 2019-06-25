@@ -6,7 +6,7 @@ Currently supports the following databases
 3. MySQL
 4. SQL Server
 
-**schema_gen** - Tool for generating schema file represting a database (tables,sequences,stored procedures,views,indexes,constraints,triggers)
+**schema_gen** - Tool for generating schema file represting a database (tables, sequences, stored procedures, views, indexes, constraints, triggers)<br/>
 It generates protobuf binary files representing the structure of the database entity, for eg, name, columns + their types etc for a table
 ```
 Apples-MacBook-Pro:sqldiffer sumeetc$ schema_gen --help
@@ -28,9 +28,8 @@ Help Options:
   -h, --help                                   Show this help message
 ```
 
-**diff_gen** - Tool for generating diff sql when comparing 2 databases
-It compares 2 previously generated protobuf schema files and provides diff sql statements which can be safely applied to the target database
-to get it closer to the source database
+**diff_gen** - Tool for generating diff sql when comparing 2 databases<br/>
+It compares 2 previously generated protobuf schema files and provides diff sql statements which can be safely applied to the target database to get it closer to the source database
 
 ```
 Apples-MacBook-Pro:sqldiffer sumeetc$ diff_gen --help
