@@ -40,7 +40,7 @@ func (db *OrclTrigger) GenerateDel(tr *pb2.Trigger, context interface{}) string 
 //Query -
 func (db *OrclTrigger) Query(context interface{}) string {
 	return `SELECT trigger_name, table_name, trigger_type, triggering_event, 
-		trigger_body, description, dbms_metadata.get_ddl('TRIGGER', trigger_name) from user_triggers`
+		'', description, dbms_metadata.get_ddl('TRIGGER', trigger_name) from user_triggers`
 }
 
 //FromResult -
