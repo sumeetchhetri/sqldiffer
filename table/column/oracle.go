@@ -35,7 +35,7 @@ func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	if !*co.Notnull {
 		//b.WriteString(" NOT NULL ");
 	}
-	if db.Column.DefVal != nil {
+	if co.DefVal != nil {
 		b.WriteString(" DEFAULT ")
 		b.WriteString(*co.DefVal)
 	}
@@ -46,7 +46,7 @@ func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 //GenerateUpd -
 func (db *OrclColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
-	dstcol := context.(pb2.Column)
+	dstcol := context.(*pb2.Column)
 	if *dstcol.Type != *co.Type {
 		b.WriteString("\nALTER TABLE \"")
 		b.WriteString(*co.TableName)

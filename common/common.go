@@ -316,8 +316,8 @@ func StoredProcedureEq(t1, t2 pb2.StoredProcedure) bool {
 		(t1.NumParams != nil && t2.NumParams == nil) || (t1.Params != nil && t2.Params == nil) {
 		return false
 	}
-	if *t1.Name != *t2.Name || *t1.Declaration != *t2.Declaration ||
-		!StringEqualsIgnSpace(*t1.DropDeclaration, *t2.DropDeclaration) ||
+	if *t1.Name != *t2.Name || (t1.Declaration != nil && t2.Declaration != nil && *t1.Declaration != *t2.Declaration) ||
+		(t1.DropDeclaration != nil && t2.DropDeclaration != nil && !StringEqualsIgnSpace(*t1.DropDeclaration, *t2.DropDeclaration)) ||
 		!StringEqualsIgnSpace(*t1.Definition, *t2.Definition) ||
 		*t1.NumParams != *t2.NumParams {
 		return false
@@ -447,6 +447,8 @@ func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 
 	if nn.Valid && nn.String == "Y" {
 		sp.Notnull = proto.Bool(true)
+	} else {
+		sp.Notnull = proto.Bool(false)
 	}
 	if prec.Valid {
 		sp.Precision = proto.Int64(prec.Int64)
@@ -701,6 +703,13 @@ func GetProcedureFromRow(rows *sql.Rows, context interface{}) *pb2.StoredProcedu
 	err := rows.Scan(&sp.Name, &sp.Definition, &sp.Declaration, &sp.DropDeclaration, &sp.NumParams)
 	if err != nil {
 		Fatal("Error fetching details from database", err)
+	}
+
+	if sp.Declaration == nil {
+		sp.Declaration = proto.String("")
+	}
+	if sp.DropDeclaration == nil {
+		sp.DropDeclaration = proto.String("")
 	}
 
 	tmp := *sp.Definition
