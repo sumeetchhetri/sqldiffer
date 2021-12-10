@@ -106,7 +106,7 @@ func (db *OrclConstraint) Query(context interface{}) string {
 			FROM user_constraints cons INNER join user_cons_columns cols ON cons.constraint_name = cols.constraint_name 
 			AND cons.owner = cols.owner AND cons.status = 'ENABLED' 
 			AND cols.table_name IN (SELECT table_name FROM user_tables)
-			AND cons.generated = 'USER NAME' AND cons.constraint_type <> 'R'
+			AND cons.constraint_type <> 'R'
 		UNION ALL
 		SELECT a.table_name, a.constraint_name, '','','R', a.column_name, 0 rn, c_pk.table_name, b.column_name, ''              
 		  FROM user_cons_columns a
@@ -116,8 +116,7 @@ func (db *OrclConstraint) Query(context interface{}) string {
 								   AND c.r_constraint_name = c_pk.constraint_name
 		  JOIN user_cons_columns b ON a.owner = b.owner
 								AND c_pk.constraint_name = b.constraint_name
-		 WHERE c.constraint_type = 'R'
-		 AND c.generated = 'USER NAME') offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
+		 WHERE c.constraint_type = 'R') offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
 //FromResult -

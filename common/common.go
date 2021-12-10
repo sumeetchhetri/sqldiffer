@@ -6,6 +6,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	"os"
 	"reflect"
+	"regexp"
 	pb2 "sqldiffer/protos"
 	"strconv"
 	"strings"
@@ -418,12 +419,9 @@ func TableEq(t1, t2 pb2.Table) bool {
 
 //StringEqualsIgnSpace -
 func StringEqualsIgnSpace(v1, v2 string) bool {
-	v1 = strings.Replace(v1, "\n", "", -1)
-	v1 = strings.Replace(v1, "\r", "", -1)
-	v1 = strings.Replace(v1, "[\t ]+", "", -1)
-	v2 = strings.Replace(v2, "\n", "", -1)
-	v2 = strings.Replace(v2, "\r", "", -1)
-	v2 = strings.Replace(v2, "[\t ]+", "", -1)
+	var re = regexp.MustCompile(`[\n\r\t\s]+`)
+	v1 = re.ReplaceAllString(v1, "")
+	v2 = re.ReplaceAllString(v2, "")
 	return v1 == v2
 }
 
@@ -815,7 +813,9 @@ func GetViewFromRow(rows *sql.Rows, context interface{}) *pb2.View {
 	if err != nil {
 		Fatal("Error fetching details from database", err)
 	}
-
+	if sp.Definition == nil {
+		sp.Definition = proto.String(" ")
+	}
 	sp.Weight = proto.Int32(0)
 	return &sp
 }

@@ -378,28 +378,29 @@ func generateTableDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction,
 }
 
 func generateStoreProcedureDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction, spcb *bytes.Buffer) {
-	procVisited := make(map[string]bool)
+	//procVisited := make(map[string]bool)
 	for _, psrc := range dbsrc.StoredProcs {
 		var pdst *pb2.StoredProcedure
 		for _, tmpb := range dbdst.StoredProcs {
 			if *tmpb.Name == *psrc.Name {
 				pdst = tmpb
-				ok1 := procVisited[*psrc.Name]
-				ok2 := procVisited[*pdst.Name]
-				if *dbsrc.Type == pb2.Db_ORACLE || (*dbsrc.Type != pb2.Db_ORACLE && *psrc.NumParams == *pdst.NumParams && ok1 && ok2) {
-					procVisited[*psrc.Name] = true
-					procVisited[*pdst.Name] = true
+				//ok1 := procVisited[*psrc.Name]
+				//ok2 := procVisited[*pdst.Name]
+				if *dbsrc.Type == pb2.Db_ORACLE || (*dbsrc.Type != pb2.Db_ORACLE && *psrc.NumParams == *pdst.NumParams) {
+					//procVisited[*psrc.Name] = true
+					//procVisited[*pdst.Name] = true
 					break
 				}
+				pdst = nil
 			} else {
 				pdst = nil
 			}
 		}
 		if pdst == nil {
 			spcb.WriteString(action.StoredProcedure.GenerateNew(psrc, nil))
-		} else if c.StoredProcedureEq(*psrc, *pdst) {
+		} else if !c.StoredProcedureEq(*psrc, *pdst) {
 			spcb.WriteString(action.StoredProcedure.GenerateDel(pdst, nil))
-			spcb.WriteString(action.StoredProcedure.GenerateNew(pdst, nil))
+			spcb.WriteString(action.StoredProcedure.GenerateNew(psrc, nil))
 		}
 	}
 	for _, pdst := range dbdst.StoredProcs {

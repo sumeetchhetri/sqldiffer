@@ -35,7 +35,7 @@ func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	if !*co.Notnull {
 		//b.WriteString(" NOT NULL ");
 	}
-	if co.DefVal != nil {
+	if co.DefVal != nil && *co.DefVal != "" {
 		b.WriteString(" DEFAULT ")
 		b.WriteString(*co.DefVal)
 	}
