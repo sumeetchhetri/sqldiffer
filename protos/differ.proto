@@ -1,5 +1,5 @@
 syntax = "proto2";
-option go_package = "differ.p2";
+option go_package = "/";
 
 message Db
 {

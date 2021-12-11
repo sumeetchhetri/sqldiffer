@@ -3,26 +3,29 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/protobuf/proto"
+
 	flags "github.com/jessevdk/go-flags"
+	"google.golang.org/protobuf/proto"
+
 	//"gopkg.in/src-d/go-git.v4"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"sort"
-	c "sqldiffer/common"
-	db "sqldiffer/db"
-	pb2 "sqldiffer/protos"
-	sq "sqldiffer/sequence"
-	sp "sqldiffer/storedproc"
-	spp "sqldiffer/storedproc/storedprocparam"
-	tb "sqldiffer/table"
-	co "sqldiffer/table/column"
-	cn "sqldiffer/table/constraint"
-	in "sqldiffer/table/index"
-	tr "sqldiffer/table/trigger"
-	vw "sqldiffer/view"
 	"time"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+	db "github.com/sumeetchhetri/sqldiffer/db"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
+	sq "github.com/sumeetchhetri/sqldiffer/sequence"
+	sp "github.com/sumeetchhetri/sqldiffer/storedproc"
+	spp "github.com/sumeetchhetri/sqldiffer/storedproc/storedprocparam"
+	tb "github.com/sumeetchhetri/sqldiffer/table"
+	co "github.com/sumeetchhetri/sqldiffer/table/column"
+	cn "github.com/sumeetchhetri/sqldiffer/table/constraint"
+	in "github.com/sumeetchhetri/sqldiffer/table/index"
+	tr "github.com/sumeetchhetri/sqldiffer/table/trigger"
+	vw "github.com/sumeetchhetri/sqldiffer/view"
 )
 
 var opts struct {
@@ -270,7 +273,7 @@ func generateTableDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction,
 					mscb.WriteString(action.Constraint.GenerateNew(csrc, nil))
 				}
 			}
-		} else if !c.TableEq(*tsrc, *tdst) {
+		} else if !c.TableEq(tsrc, tdst) {
 			for _, csrc := range tsrc.Columns {
 				var cdst *pb2.Column
 				for _, tmp := range tdst.Columns {
@@ -281,7 +284,7 @@ func generateTableDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction,
 				}
 				if cdst == nil {
 					tabb.WriteString(action.Column.GenerateNew(csrc, nil))
-				} else if !c.ColumnEq(*csrc, *cdst) {
+				} else if !c.ColumnEq(csrc, cdst) {
 					tabb.WriteString(action.Column.GenerateUpd(csrc, cdst))
 				}
 			}
@@ -312,7 +315,7 @@ func generateTableDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction,
 						donem[*csrc.Name+*csrc.Definition] = true
 						mscb.WriteString(action.Constraint.GenerateNew(csrc, nil))
 					}
-				} else if !c.ConstraintEq(*csrc, *cdst) {
+				} else if !c.ConstraintEq(csrc, cdst) {
 					_, ok := donem[*csrc.Name+*csrc.Definition]
 					if !ok {
 						donem[*csrc.Name+*csrc.Definition] = true
@@ -344,7 +347,7 @@ func generateTableDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction,
 				}
 				if cdst == nil {
 					mscb.WriteString(action.Index.GenerateNew(csrc, nil))
-				} else if !c.IndexEq(*csrc, *cdst) {
+				} else if !c.IndexEq(csrc, cdst) {
 					mscb.WriteString(action.Index.GenerateDel(cdst, nil))
 					mscb.WriteString(action.Index.GenerateNew(csrc, nil))
 				}
@@ -398,7 +401,7 @@ func generateStoreProcedureDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDi
 		}
 		if pdst == nil {
 			spcb.WriteString(action.StoredProcedure.GenerateNew(psrc, nil))
-		} else if !c.StoredProcedureEq(*psrc, *pdst) {
+		} else if !c.StoredProcedureEq(psrc, pdst) {
 			spcb.WriteString(action.StoredProcedure.GenerateDel(pdst, nil))
 			spcb.WriteString(action.StoredProcedure.GenerateNew(psrc, nil))
 		}
@@ -423,14 +426,14 @@ func generateSequenceDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffActi
 		for _, tmpb := range dbdst.Sequences {
 			if *ssrc.Name == *tmpb.Name {
 				sdst = tmpb
-				if c.SequenceEq(*ssrc, *sdst) {
+				if c.SequenceEq(ssrc, sdst) {
 					break
 				}
 			}
 		}
 		if sdst == nil {
 			seqb.WriteString(action.Sequence.GenerateNew(ssrc, nil))
-		} else if !c.SequenceEq(*ssrc, *sdst) {
+		} else if !c.SequenceEq(ssrc, sdst) {
 			seqb.WriteString(action.Sequence.GenerateDel(sdst, nil))
 			seqb.WriteString(action.Sequence.GenerateNew(ssrc, nil))
 		}
@@ -468,14 +471,14 @@ func generateTriggerDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffActio
 				for _, tmp := range tdst.Triggers {
 					if *csrc.Name == *tmp.Name {
 						cdst = tmp
-						if c.TriggerEq(*csrc, *cdst) {
+						if c.TriggerEq(csrc, cdst) {
 							break
 						}
 					}
 				}
 				if cdst == nil {
 					trgb.WriteString(action.Trigger.GenerateNew(csrc, nil))
-				} else if !c.TriggerEq(*csrc, *cdst) {
+				} else if !c.TriggerEq(csrc, cdst) {
 					trgb.WriteString(action.Trigger.GenerateDel(cdst, nil))
 					trgb.WriteString(action.Trigger.GenerateNew(csrc, nil))
 				}
@@ -497,8 +500,8 @@ func generateTriggerDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffActio
 }
 
 func generateViewDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction, tabb *bytes.Buffer) {
-	var delViews []pb2.View
-	var addViews []pb2.View
+	var delViews []*pb2.View
+	var addViews []*pb2.View
 	for _, vsrc := range dbsrc.Views {
 		var vdst *pb2.View
 		for _, tmpb := range dbdst.Views {
@@ -508,10 +511,10 @@ func generateViewDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction, 
 			}
 		}
 		if vdst == nil {
-			addViews = append(addViews, *vsrc)
-		} else if !c.ViewEq(*vsrc, *vdst) {
-			delViews = append(delViews, *vdst)
-			addViews = append(addViews, *vsrc)
+			addViews = append(addViews, vsrc)
+		} else if !c.ViewEq(vsrc, vdst) {
+			delViews = append(delViews, vdst)
+			addViews = append(addViews, vsrc)
 		}
 	}
 	for _, vwc := range delViews {
@@ -543,9 +546,9 @@ func generateViewDiff(dbsrc *pb2.Db, dbdst *pb2.Db, action *c.SchemaDiffAction, 
 		addViews[l], addViews[r] = addViews[r], addViews[l]
 	}
 	for _, vwc := range delViews {
-		tabb.WriteString(action.View.GenerateDel(&vwc, nil))
+		tabb.WriteString(action.View.GenerateDel(vwc, nil))
 	}
 	for _, vwc := range addViews {
-		tabb.WriteString(action.View.GenerateNew(&vwc, nil))
+		tabb.WriteString(action.View.GenerateNew(vwc, nil))
 	}
 }

@@ -3,30 +3,30 @@ package main
 import (
 	sql "database/sql"
 	"fmt"
-	_ "github.com/denisenkom/go-mssqldb"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang/protobuf/proto"
-	flags "github.com/jessevdk/go-flags"
-	_ "github.com/lib/pq"
-	//_ "gopkg.in/goracle.v2"
-	_ "github.com/mattn/go-oci8"
 	"os"
-	c "sqldiffer/common"
-	db "sqldiffer/db"
-	pb2 "sqldiffer/protos"
-	sq "sqldiffer/sequence"
-	sp "sqldiffer/storedproc"
-	spp "sqldiffer/storedproc/storedprocparam"
-	tb "sqldiffer/table"
-	co "sqldiffer/table/column"
-	cn "sqldiffer/table/constraint"
-	in "sqldiffer/table/index"
-	tr "sqldiffer/table/trigger"
-	vw "sqldiffer/view"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/go-sql-driver/mysql"
+	flags "github.com/jessevdk/go-flags"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-oci8"
+	c "github.com/sumeetchhetri/sqldiffer/common"
+	db "github.com/sumeetchhetri/sqldiffer/db"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
+	sq "github.com/sumeetchhetri/sqldiffer/sequence"
+	sp "github.com/sumeetchhetri/sqldiffer/storedproc"
+	spp "github.com/sumeetchhetri/sqldiffer/storedproc/storedprocparam"
+	tb "github.com/sumeetchhetri/sqldiffer/table"
+	co "github.com/sumeetchhetri/sqldiffer/table/column"
+	cn "github.com/sumeetchhetri/sqldiffer/table/constraint"
+	in "github.com/sumeetchhetri/sqldiffer/table/index"
+	tr "github.com/sumeetchhetri/sqldiffer/table/trigger"
+	vw "github.com/sumeetchhetri/sqldiffer/view"
+	"google.golang.org/protobuf/proto"
 )
 
 var opts struct {
@@ -521,9 +521,9 @@ func objectifySequences(action *c.SchemaDiffAction, tdb *pb2.Db, ch chan int) {
 		}
 
 		tdb.Sequences = append(tdb.Sequences, tvw)
-		if tvw.Name != nil {
-			//fmt.Printf("Objectifying sequence %s\n", *tvw.Name)
-		}
+		//if tvw.Name != nil {
+		//fmt.Printf("Objectifying sequence %s\n", *tvw.Name)
+		//}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -609,7 +609,7 @@ func objectifyTables(action *c.SchemaDiffAction, tdb *pb2.Db, wg *sync.WaitGroup
 				}
 			} else if *c.Condition != "" {
 				for _, co := range tdst.Columns {
-					if strings.Index(*c.Condition, *co.Name) != -1 {
+					if strings.Contains(*c.Condition, *co.Name) {
 						fl = true
 						break
 					}
@@ -742,69 +742,55 @@ func objectifyConstraints(tdb *pb2.Db, action *c.SchemaDiffAction, ch chan int) 
 
 func objectifyIndexes(tdb *pb2.Db, action *c.SchemaDiffAction, ch chan int) {
 	st := time.Now()
-	start := 0
-	size := 2000
 	indxCount := 0
 	qtd := time.Duration(0).Nanoseconds()
 
 	db := getConn(action)
-	for {
-		count := 0
 
-		cntxt := make([]interface{}, 0)
-		cntxt = append(cntxt, start)
-		cntxt = append(cntxt, size)
-		cntxt = append(cntxt, *tdb.Name)
+	cntxt := make([]interface{}, 0)
 
-		qt1 := time.Now()
-		rows, err := db.Query(action.Index.Query(cntxt))
-		if err != nil {
-			c.Fatal("Error querying Indexes", err)
-		}
-		qt2 := time.Now()
-
-		qtd += qt2.Sub(qt1).Nanoseconds()
-
-		for rows.Next() {
-			count++
-			indxCount++
-
-			cntxt1 := make([]interface{}, 0)
-			cntxt1 = append(cntxt1, action.Indexess)
-
-			tvw := action.Index.FromResult(rows, cntxt1)
-			if tvw.Definition != nil && tdb.SchemaName != nil {
-				*tvw.Definition = strings.Replace(*tvw.Definition, "\""+*tdb.SchemaName+"\".", "", -1)
-				//*tvw.Definition = strings.Replace(*tvw.Definition, *tdb.SchemaName+".", "", -1)
-			}
-			//fmt.Printf("Objectifying index %s\n", *tvw.Name)
-			_, ok := action.Indexes[*tvw.TableName]
-			if !ok {
-				action.Indexes[*tvw.TableName] = make([]*pb2.Index, 0)
-			}
-			action.Indexes[*tvw.TableName] = append(action.Indexes[*tvw.TableName], tvw)
-
-			_, ok = action.Indexess[*tvw.Name]
-			if !ok {
-				action.Indexess[*tvw.Name] = tvw
-			}
-		}
-		err = rows.Err()
-		if err != nil {
-			c.Fatal("Error fetching Index details from database", err)
-		}
-
-		if count == 0 || count < size {
-			break
-		}
-		start += count
-
-		rows.Close()
+	qt1 := time.Now()
+	rows, err := db.Query(action.Index.Query(cntxt))
+	if err != nil {
+		c.Fatal("Error querying Indexes", err)
 	}
+	qt2 := time.Now()
+
+	qtd += qt2.Sub(qt1).Nanoseconds()
+
+	for rows.Next() {
+		indxCount++
+
+		cntxt1 := make([]interface{}, 0)
+		cntxt1 = append(cntxt1, action.Indexess)
+
+		tvw := action.Index.FromResult(rows, cntxt1)
+		if tvw.Definition != nil && tdb.SchemaName != nil {
+			*tvw.Definition = strings.Replace(*tvw.Definition, "\""+*tdb.SchemaName+"\".", "", -1)
+			//*tvw.Definition = strings.Replace(*tvw.Definition, *tdb.SchemaName+".", "", -1)
+		}
+		//fmt.Printf("Objectifying index %s\n", *tvw.Name)
+		_, ok := action.Indexes[*tvw.TableName]
+		if !ok {
+			action.Indexes[*tvw.TableName] = make([]*pb2.Index, 0)
+		}
+		action.Indexes[*tvw.TableName] = append(action.Indexes[*tvw.TableName], tvw)
+
+		_, ok = action.Indexess[*tvw.Name]
+		if !ok {
+			action.Indexess[*tvw.Name] = tvw
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		c.Fatal("Error fetching Index details from database", err)
+	}
+
+	rows.Close()
 
 	defer db.Close()
 
-	fmt.Printf("Total indexes %d, Query time = %ds, Total time = %ds\n", indxCount, qtd/fc, time.Since(st).Nanoseconds()/fc)
+	fmt.Printf("Total table indexes %d, Query time = %ds, Total time = %ds\n", indxCount, qtd/fc, time.Since(st).Nanoseconds()/fc)
 	ch <- 1
 }
 
@@ -871,7 +857,7 @@ func objectifyTriggers(action *c.SchemaDiffAction, tdb *pb2.Db, wg *sync.WaitGro
 		c.Fatal("Error fetching Trigger details from database", err)
 	}
 
-	fmt.Printf("Total triggers %d, Query time = %ds, Total time = %ds\n", trgCount, qtd/fc, time.Since(st).Nanoseconds()/fc)
+	fmt.Printf("Total table triggers %d, Query time = %ds, Total time = %ds\n", trgCount, qtd/fc, time.Since(st).Nanoseconds()/fc)
 
 	defer rows.Close()
 	defer db.Close()

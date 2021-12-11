@@ -1,4 +1,4 @@
-name: Build docker image for linux
+name: Validate for linux
 
 on:
   push:
@@ -14,4 +14,17 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: |
-        docker build -f Dockerfile .
+        docker build -f Dockerfile -t temp/sqloci:1.0 .
+        cd /tmp && mkdir bin
+        cd /tmp/bin      
+        mkdir bin_with_orcl bin_wo bin_with_orcl_wver bin_wo_wver
+        docker create -ti --name sqloci temp/sqloci:1.0 bash
+        docker cp sqloci:/root/go/src/sqldiffer/bin_with_orcl/schema_gen bin_with_orcl/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_with_orcl/diff_gen bin_with_orcl/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_wo/schema_gen bin_wo/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_wo/diff_gen bin_wo/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_with_orcl_wver/schema_gen.exe bin_with_orcl_wver/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_with_orcl_wver/diff_gen.exe bin_with_orcl_wver/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_wo_wver/schema_gen.exe bin_wo_wver/
+        docker cp sqloci:/root/go/src/sqldiffer/bin_wo_wver/diff_gen.exe bin_wo_wver/
+        ls -ltr /tmp/bin

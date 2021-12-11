@@ -3,11 +3,12 @@ package index
 import (
 	"bytes"
 	sql "database/sql"
-	"fmt"
-	c "sqldiffer/common"
 	"strings"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//proto "github.com/golang/protobuf/proto"
-	pb2 "sqldiffer/protos"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //OrclIndex -
@@ -69,8 +70,7 @@ func (db *OrclIndex) CountQuery(context interface{}) string {
 
 //Query -
 func (db *OrclIndex) Query(context interface{}) string {
-	args := context.([]interface{})
-	return fmt.Sprintf(`SELECT
+	return `SELECT
 			i.table_name,
 			i.index_name,
 			'',
@@ -84,8 +84,7 @@ func (db *OrclIndex) Query(context interface{}) string {
 			ON c.index_name = f.index_name
 			AND c.table_name = f.table_name
 			AND c.column_position = f.column_position
-		ORDER BY i.table_owner, i.table_name, i.index_name, c.column_position
-		offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
+		ORDER BY i.table_owner, i.table_name, i.index_name, c.column_position`
 }
 
 //FromResult -

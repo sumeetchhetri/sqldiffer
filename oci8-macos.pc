@@ -1,0 +1,9 @@
+prefixdir=/Users/runner/Downloads/instantclient_19_8/
+libdir=${prefixdir}
+includedir=${prefixdir}/sdk/include
+
+Name: OCI
+Description: Oracle database driver
+Version: 21.3
+Libs: -L${libdir} -lclntsh
+Cflags: -I${includedir}

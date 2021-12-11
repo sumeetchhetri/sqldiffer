@@ -5,10 +5,10 @@ import (
 	"fmt"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
-	c "sqldiffer/common"
+	c "github.com/sumeetchhetri/sqldiffer/common"
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
-	pb2 "sqldiffer/protos"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //MysqlDb -

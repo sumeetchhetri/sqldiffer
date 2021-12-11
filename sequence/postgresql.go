@@ -6,8 +6,8 @@ import (
 	"strconv"
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
-	c "sqldiffer/common"
-	pb2 "sqldiffer/protos"
+	c "github.com/sumeetchhetri/sqldiffer/common"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 	//"strings"
 )
 

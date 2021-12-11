@@ -4,8 +4,8 @@ import (
 	"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
-	c "sqldiffer/common"
-	pb2 "sqldiffer/protos"
+	c "github.com/sumeetchhetri/sqldiffer/common"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //OrclDb -

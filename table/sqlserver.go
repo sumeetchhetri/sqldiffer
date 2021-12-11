@@ -3,11 +3,11 @@ package table
 import (
 	"bytes"
 	sql "database/sql"
-	c "sqldiffer/common"
+	c "github.com/sumeetchhetri/sqldiffer/common"
 	"strings"
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
-	pb2 "sqldiffer/protos"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //SqlsTable -

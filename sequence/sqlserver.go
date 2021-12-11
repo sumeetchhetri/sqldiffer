@@ -2,11 +2,11 @@ package sequence
 
 import (
 	sql "database/sql"
-	c "sqldiffer/common"
+	c "github.com/sumeetchhetri/sqldiffer/common"
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
-	pb2 "sqldiffer/protos"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //SqlsSequence -

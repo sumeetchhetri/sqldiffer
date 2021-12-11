@@ -3,9 +3,9 @@ package storedprocparam
 import (
 	sql "database/sql"
 	"fmt"
-	c "sqldiffer/common"
+	c "github.com/sumeetchhetri/sqldiffer/common"
 	//proto "github.com/golang/protobuf/proto"
-	//pb2 "sqldiffer/protos"
+	//pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //SqlsStoredProcedureParam -

@@ -2,3 +2,4 @@
 *.pbf
 cmds
 .vscode/*
+bin/

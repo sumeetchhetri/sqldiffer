@@ -8,6 +8,12 @@ Currently supports the following databases
 
 **schema_gen** - Tool for generating schema file representing a database (tables, sequences, stored procedures, views, indexes, constraints, triggers)<br/>
 It generates protobuf binary files representing the structure of the database entity, for eg, name, columns + their types etc for a table
+Please ensure that the path for oracle install client libraries is in the %PATH% (Windows) & LD_LIBRARY_PATH (for macos, linux)
+```
+set PATH=%PATH%;C:\path\to\instantclient_21_3
+export LD_LIBRARY_PATH=/path/to/instantclient_19_8
+```
+
 ```
 Apples-MacBook-Pro:sqldiffer sumeetc$ schema_gen --help
 Usage:
@@ -95,9 +101,13 @@ cd protos && protoc --go_out=. *.proto && cd ..
 **Creating executable**
 ```
 go install ./...
+OR
+make all
 ```
 
 **Cross compiling and building for windows x64**
 ```
 env GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CXX=x86_64-w64-mingw32-g++ CC=x86_64-w64-mingw32-gcc CGO_CFLAGS="-I/path/to/windows_oracle_install_client/instantclient_12_2_winx/sdk/include" CGO_LDFLAGS="-L/path/to/windows_oracle_install_client/instantclient_12_2_winx/ -L/path/to/windows_oracle_install_client/instantclient_12_2_winx/sdk/msvc -lstdc++ -loci" go install -v -tags noPkgConfig ./...
+OR
+make win_version
 ```

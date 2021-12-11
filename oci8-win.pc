@@ -1,0 +1,12 @@
+libdir=c:\temp\basic\instantclient_21_3\sdk\lib\msvc
+includedir=c:\temp\basic\instantclient_21_3\sdk\include
+
+glib_genmarshal=glib-genmarshal
+gobject_query=gobject-query
+glib_mkenums=glib-mkenums
+
+Name: oci8
+Description: oci8 library
+Libs: -L${libdir} -loci
+Cflags: -I${includedir}
+Version: 21.3

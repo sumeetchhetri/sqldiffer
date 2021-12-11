@@ -2,12 +2,14 @@ package index
 
 import (
 	sql "database/sql"
-	"fmt"
-	c "sqldiffer/common"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
-	pb2 "sqldiffer/protos"
 	"strings"
+
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //MysqlIndex -
@@ -76,7 +78,7 @@ func (db *MysqlIndex) CountQuery(context interface{}) string {
 
 //Query -
 func (db *MysqlIndex) Query(context interface{}) string {
-	return fmt.Sprintf(`select table_name,
+	return `select table_name,
 				index_name,
 				'',
 				group_concat(column_name order by seq_in_index) as index_columns,
@@ -93,7 +95,7 @@ func (db *MysqlIndex) Query(context interface{}) string {
 				non_unique,
 				table_name
 			order by index_schema,
-				index_name;`, context.(string))
+				index_name;`
 }
 
 //FromResult -

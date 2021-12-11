@@ -4,7 +4,7 @@ import (
 	sql "database/sql"
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
-	pb2 "sqldiffer/protos"
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
 //MysqlSequence -

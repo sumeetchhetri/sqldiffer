@@ -3,13 +3,14 @@ package common
 import (
 	sql "database/sql"
 	"fmt"
-	proto "github.com/golang/protobuf/proto"
 	"os"
 	"reflect"
 	"regexp"
-	pb2 "sqldiffer/protos"
 	"strconv"
 	"strings"
+
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
+	proto "google.golang.org/protobuf/proto"
 )
 
 //DbIntf - The Db Interface Type
@@ -157,7 +158,7 @@ func Fatal(msg string, err error) {
 }
 
 //ColumnEq -
-func ColumnEq(t1, t2 pb2.Column) bool {
+func ColumnEq(t1, t2 *pb2.Column) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -177,7 +178,7 @@ func ColumnEq(t1, t2 pb2.Column) bool {
 }
 
 //TriggerEq -
-func TriggerEq(t1, t2 pb2.Trigger) bool {
+func TriggerEq(t1, t2 *pb2.Trigger) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -203,7 +204,7 @@ func TriggerEq(t1, t2 pb2.Trigger) bool {
 }
 
 //IndexEq -
-func IndexEq(t1, t2 pb2.Index) bool {
+func IndexEq(t1, t2 *pb2.Index) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -224,7 +225,7 @@ func IndexEq(t1, t2 pb2.Index) bool {
 }
 
 //ConstraintEq -
-func ConstraintEq(t1, t2 pb2.Constraint) bool {
+func ConstraintEq(t1, t2 *pb2.Constraint) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -243,7 +244,7 @@ func ConstraintEq(t1, t2 pb2.Constraint) bool {
 }
 
 //SequenceEq -
-func SequenceEq(t1, t2 pb2.Sequence) bool {
+func SequenceEq(t1, t2 *pb2.Sequence) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -260,7 +261,7 @@ func SequenceEq(t1, t2 pb2.Sequence) bool {
 }
 
 //ViewEq -
-func ViewEq(t1, t2 pb2.View) bool {
+func ViewEq(t1, t2 *pb2.View) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -280,7 +281,7 @@ func ViewEq(t1, t2 pb2.View) bool {
 }
 
 //StoredProcedureParamEq -
-func StoredProcedureParamEq(t1, t2 pb2.StoredProcedureParam) bool {
+func StoredProcedureParamEq(t1, t2 *pb2.StoredProcedureParam) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -303,7 +304,7 @@ func StoredProcedureParamEq(t1, t2 pb2.StoredProcedureParam) bool {
 }
 
 //StoredProcedureEq -
-func StoredProcedureEq(t1, t2 pb2.StoredProcedure) bool {
+func StoredProcedureEq(t1, t2 *pb2.StoredProcedure) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -327,7 +328,7 @@ func StoredProcedureEq(t1, t2 pb2.StoredProcedure) bool {
 		for _, v1 := range t1.Params {
 			fl := false
 			for _, v2 := range t2.Params {
-				if StoredProcedureParamEq(*v1, *v2) {
+				if StoredProcedureParamEq(v1, v2) {
 					fl = true
 					break
 				}
@@ -341,7 +342,7 @@ func StoredProcedureEq(t1, t2 pb2.StoredProcedure) bool {
 }
 
 //TableEq -
-func TableEq(t1, t2 pb2.Table) bool {
+func TableEq(t1, t2 *pb2.Table) bool {
 	if &t1 == &t2 {
 		return true
 	}
@@ -362,7 +363,7 @@ func TableEq(t1, t2 pb2.Table) bool {
 		for _, v1 := range t1.Columns {
 			fl := false
 			for _, v2 := range t2.Columns {
-				if ColumnEq(*v1, *v2) {
+				if ColumnEq(v1, v2) {
 					fl = true
 					break
 				}
@@ -376,7 +377,7 @@ func TableEq(t1, t2 pb2.Table) bool {
 		for _, v1 := range t1.Triggers {
 			fl := false
 			for _, v2 := range t2.Triggers {
-				if TriggerEq(*v1, *v2) {
+				if TriggerEq(v1, v2) {
 					fl = true
 					break
 				}
@@ -390,7 +391,7 @@ func TableEq(t1, t2 pb2.Table) bool {
 		for _, v1 := range t1.Indexes {
 			fl := false
 			for _, v2 := range t2.Indexes {
-				if IndexEq(*v1, *v2) {
+				if IndexEq(v1, v2) {
 					fl = true
 					break
 				}
@@ -404,7 +405,7 @@ func TableEq(t1, t2 pb2.Table) bool {
 		for _, v1 := range t1.Constraints {
 			fl := false
 			for _, v2 := range t2.Constraints {
-				if ConstraintEq(*v1, *v2) {
+				if ConstraintEq(v1, v2) {
 					fl = true
 					break
 				}
@@ -457,7 +458,7 @@ func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	if len.Valid {
 		sp.Length = proto.Int64(len.Int64)
 	}
-	if sp.Length != nil && strings.Index(*sp.Type, "(") == -1 && strings.Index(strings.ToLower(*sp.Type), "char") != -1 {
+	if sp.Length != nil && !strings.Contains(*sp.Type, "(") && strings.Contains(strings.ToLower(*sp.Type), "char") {
 		*sp.Type = *sp.Type + "(" + strconv.FormatInt(len.Int64, 10) + ")"
 	} else if sp.Length != nil && sp.Scale != nil && (strings.ToLower(*sp.Type) == "decimal" ||
 		strings.ToLower(*sp.Type) == "number") {
@@ -465,7 +466,7 @@ func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	}
 	if defv.Valid {
 		defv.String = strings.TrimSpace(defv.String)
-		if strings.Index(defv.String, ".\"NEXTVAL\"") != -1 || strings.Index(defv.String, ".\"nextval\"") != -1 {
+		if strings.Contains(defv.String, ".\"NEXTVAL\"") || strings.Contains(defv.String, ".\"nextval\"") {
 			defv.String = strings.Replace(defv.String, "\"", "", -1)
 		}
 	}
@@ -564,23 +565,23 @@ func GetTriggerFromRow(rows *sql.Rows, context interface{}) *pb2.Trigger {
 //MergeDuplicates -
 func MergeDuplicates(triggers []*pb2.Trigger) []*pb2.Trigger {
 	utriggers := make([]*pb2.Trigger, 0)
-	utrgs := make(map[string][]pb2.Trigger)
+	utrgs := make(map[string][]*pb2.Trigger)
 
-	for _, t := range triggers {
-		_, ok := utrgs[*t.Name+*t.When+*t.Definition]
+	for i := range triggers {
+		_, ok := utrgs[*triggers[i].Name+*triggers[i].When+*triggers[i].Definition]
 		if !ok {
-			utrgs[*t.Name+*t.When+*t.Definition] = make([]pb2.Trigger, 0)
+			utrgs[*triggers[i].Name+*triggers[i].When+*triggers[i].Definition] = make([]*pb2.Trigger, 0)
 		}
-		utrgs[*t.Name+*t.When+*t.Definition] = append(utrgs[*t.Name+*t.When+*t.Definition], *t)
+		utrgs[*triggers[i].Name+*triggers[i].When+*triggers[i].Definition] =
+			append(utrgs[*triggers[i].Name+*triggers[i].When+*triggers[i].Definition], triggers[i])
 	}
 	for _, trgs := range utrgs {
 		actions := make([]string, 0)
-		for _, t := range trgs {
-			actions = append(actions, *t.Action)
+		for i := range trgs {
+			actions = append(actions, *trgs[i].Action)
 		}
-		tgt := trgs[0]
-		*tgt.Action = strings.Join(actions, " OR ")
-		utriggers = append(utriggers, &tgt)
+		*trgs[0].Action = strings.Join(actions, " OR ")
+		utriggers = append(utriggers, trgs[0])
 	}
 	return utriggers
 }
@@ -611,7 +612,7 @@ func GetIndexFromRow(rows *sql.Rows, context interface{}) *pb2.Index {
 	if col != "" {
 		exsp, ok := indxsColMap[*sp.Name]
 		if ok {
-			if strings.Index(col, ",") == -1 {
+			if !strings.Contains(col, ",") {
 				exsp.Columns = append(exsp.Columns, col)
 			} else {
 				cols := strings.Split(col, ",")
@@ -621,7 +622,7 @@ func GetIndexFromRow(rows *sql.Rows, context interface{}) *pb2.Index {
 			}
 		}
 		sp.Columns = make([]string, 0)
-		if strings.Index(col, ",") == -1 {
+		if !strings.Contains(col, ",") {
 			sp.Columns = append(sp.Columns, col)
 		} else {
 			cols := strings.Split(col, ",")
@@ -646,6 +647,11 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	sp := pb2.Constraint{}
 	args := context.([]interface{})
 	consColMap := args[1].(map[string]*pb2.Constraint)
+	dbType := ""
+
+	if len(args) > 2 {
+		dbType = args[2].(string)
+	}
 
 	var rn int32
 	var col string
@@ -660,10 +666,12 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 		sp.Definition = proto.String("")
 	}
 
+	_, constraintExists := consColMap[*sp.Name]
+
 	if col != "" {
-		exsp, ok := consColMap[*sp.Name]
-		if ok {
-			if strings.Index(col, ",") == -1 {
+		exsp := consColMap[*sp.Name]
+		if constraintExists {
+			if !strings.Contains(col, ",") {
 				exsp.Columns = append(exsp.Columns, col)
 			} else {
 				cols := strings.Split(col, ",")
@@ -671,23 +679,38 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 					exsp.Columns = append(exsp.Columns, strings.TrimSpace(c))
 				}
 			}
-		}
-		sp.Columns = make([]string, 0)
-		if strings.Index(col, ",") == -1 {
-			sp.Columns = append(sp.Columns, col)
 		} else {
-			cols := strings.Split(col, ",")
-			for _, c := range cols {
-				sp.Columns = append(sp.Columns, strings.TrimSpace(c))
+			sp.Columns = make([]string, 0)
+			if !strings.Contains(col, ",") {
+				sp.Columns = append(sp.Columns, col)
+			} else {
+				cols := strings.Split(col, ",")
+				for _, c := range cols {
+					sp.Columns = append(sp.Columns, strings.TrimSpace(c))
+				}
 			}
+			consColMap[*sp.Name] = &sp
 		}
+	} else if dbType == "postgresql" {
+		r := regexp.MustCompile(`FOREIGN KEY \(([a-zA-Z_0-9]+)\) REFERENCES ([a-zA-Z_0-9]+)\(([a-zA-Z_0-9]+)\)(.*)`)
+		res := r.FindAllStringSubmatch(*sp.Definition, -1)
+		for i := range res {
+			sp.Columns = make([]string, 0)
+			sp.Columns = append(sp.Columns, res[i][1])
+			sp.TargetTableName = proto.String(res[i][2])
+			sp.TargetColumnName = proto.String(res[i][3])
+			//fmt.Printf("%s %s %s %s\n", res[i][1], res[i][2], res[i][3], res[i][4])
+		}
+		consColMap[*sp.Name] = &sp
 	}
 
 	tbls := args[0].(map[string]*pb2.Table)
 
 	tsp, ok := tbls[*sp.TableName]
 	if ok {
-		tsp.Constraints = append(tsp.Constraints, &sp)
+		if !constraintExists {
+			tsp.Constraints = append(tsp.Constraints, &sp)
+		}
 		return tsp
 	}
 	return nil
@@ -767,7 +790,7 @@ func GetProcedureParamsFromRow(rows *sql.Rows, context interface{}) interface{} 
 			}
 
 			pnm := ""
-			if strings.Index(v, " ") != -1 {
+			if strings.Contains(v, " ") {
 				pnm = v[0:strings.Index(v, " ")]
 			}
 			v = v[strings.Index(v, " ")+1:]
@@ -775,7 +798,7 @@ func GetProcedureParamsFromRow(rows *sql.Rows, context interface{}) interface{} 
 			pgsa.Position = proto.Int32(int32(len(columns) + 1))
 
 			typ := v
-			if strings.Index(strings.ToLower(v), " default ") != -1 {
+			if strings.Contains(strings.ToLower(v), " default ") {
 				typ = v[0:strings.Index(strings.ToLower(v), " default ")]
 				v = v[strings.Index(strings.ToLower(v), " default ")+9:]
 				pgsa.DefVal = proto.String(v)

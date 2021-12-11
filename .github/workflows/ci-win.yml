@@ -1,0 +1,92 @@
+name: Validate for windows
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  windows:
+    runs-on: ${{ matrix.os }}
+    if: "!contains(github.event.head_commit.message, '[skip_build]')"
+    strategy:
+      matrix:
+        os: [windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        stable: 'false'
+        go-version: '1.17' # The Go version to download (if necessary) and use.
+    - run: |
+        go version
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+    - name: Set Env
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      run: |
+        echo "::set-env name=GOPATH::$(go env GOPATH)"
+        echo "::add-path::$(go env GOPATH)/bin"
+        echo "::add-path::C:\msys64\mingw64\bin"
+        echo "::add-path::C:\msys64\usr\bin"
+        echo "::add-path::C:\temp"
+        echo "::add-path::D:\a\sqldiffer\sqldiffer\bin"
+    - name: Build without oracle
+      run: |
+        cd c:\temp
+        curl --silent -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.19.1/protoc-3.19.1-win64.zip
+        unzip -qq protoc-3.19.1-win64.zip
+        cp c:\temp\bin\protoc.exe c:\temp
+        cd D:\a\sqldiffer\sqldiffer
+        make all_wo_orcl
+        dir bin
+        cd bin
+        mv schema_gen schema_gen.exe
+        mv diff_gen diff_gen.exe
+        dir D:\a\sqldiffer\sqldiffer\bin
+    - name: Test schema_gen without oracle
+      shell: cmd
+      run: |
+        schema_gen.exe --help
+    - name: Test diff_gen without oracle
+      shell: cmd
+      run: |
+        diff_gen.exe --help
+    - name: Set Env 2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      run: |
+        echo "::add-path::C:\temp\basic\instantclient_21_3"
+        echo '::set-env name=CGO_CFLAGS::-IC:\temp\basic\instantclient_21_3\sdk\include'
+        echo '::set-env name=CGO_LDFLAGS::-LC:\temp\basic\instantclient_21_3\sdk\lib\msvc -lstdc++ -loci'
+        echo '::set-env name=PKG_CONFIG_PATH::C:\temp'
+    - name: Build with oracle
+      run: |
+        cd c:\temp
+        curl --silent -OL https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip
+        curl --silent -OL https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-sdk-windows.x64-21.3.0.0.0.zip
+        mkdir basic
+        mv instantclient-basic-windows.x64-21.3.0.0.0.zip basic/
+        cd basic
+        unzip -qq instantclient-basic-windows.x64-21.3.0.0.0.zip
+        cd c:\temp
+        unzip -qq instantclient-sdk-windows.x64-21.3.0.0.0.zip
+        mv instantclient_21_3/sdk basic/instantclient_21_3/
+        cd D:\a\sqldiffer\sqldiffer
+        cp oci8-win.pc c:\temp\oci8.pc
+        git checkout schema_gen/schema_gen.go  go.mod  go.sum
+        make all
+        dir bin
+        cd bin
+        mv schema_gen schema_gen.exe
+        mv diff_gen diff_gen.exe
+        dir D:\a\sqldiffer\sqldiffer\bin
+    - name: Test schema_gen
+      shell: cmd
+      run: |
+        schema_gen.exe --help
+    - name: Test diff_gen
+      shell: cmd
+      run: |
+        diff_gen.exe --help
