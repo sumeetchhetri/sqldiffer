@@ -4,6 +4,7 @@ import (
 	"bytes"
 	sql "database/sql"
 	"strconv"
+
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	c "github.com/sumeetchhetri/sqldiffer/common"
@@ -95,7 +96,7 @@ func (db *PgSequence) Query(context interface{}) string {
 		NULL, 
 		NULL 
 	FROM information_schema.sequences i
-	inner join pg_sequence p on i.sequence_name::regclass = p.seqrelid`
+	inner join pg_sequence p on i.sequence_name = p.seqrelid::regclass::text`
 }
 
 //FromResult -

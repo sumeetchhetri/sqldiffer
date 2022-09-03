@@ -18,6 +18,12 @@ jobs:
     - name: Build
       run: |
         brew install pkg-config protobuf protoc-gen-go
+        make all_wo_orcl
+        ls -ltr bin/
+        ./bin/schema_gen --help
+        ./bin/diff_gen --help
+        rm -rf bin
+        git checkout schema_gen/schema_gen.go go.mod go.sum
         pushd /tmp
         wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-basic-macos.x64-19.8.0.0.0dbru.dmg
         wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-sdk-macos.x64-19.8.0.0.0dbru.dmg
@@ -29,14 +35,10 @@ jobs:
         ./install_ic.sh
         popd
         cp oci8-macos.pc /Users/runner/Downloads/instantclient_19_8/oci8.pc
-        export LD_LIBRARY_PATH=/Users/runner/Downloads/instantclient_19_8
-        export PKG_CONFIG_PATH=/Users/runner/Downloads/instantclient_19_8
+        export LD_LIBRARY_PATH=/Users/runner/Downloads/instantclient_19_8:$LD_LIBRARY_PATH
+        export DYLD_FALLBACK_LIBRARY_PATH=$LD_LIBRARY_PATH
+        export PKG_CONFIG_PATH=/Users/runner/Downloads/instantclient_19_8:$PKG_CONFIG_PATH
         make all
-        ls -ltr bin/
-        ./bin/schema_gen --help
-        ./bin/diff_gen --help
-        rm -rf bin
-        make all_wo_orcl
         ls -ltr bin/
         ./bin/schema_gen --help
         ./bin/diff_gen --help

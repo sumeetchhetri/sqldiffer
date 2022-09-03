@@ -5,8 +5,10 @@ import (
 	sql "database/sql"
 	"fmt"
 	"regexp"
-	c "github.com/sumeetchhetri/sqldiffer/common"
 	"strings"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
@@ -35,7 +37,7 @@ func (db *PgColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	if !*co.Notnull {
 		b.WriteString(" NOT NULL ")
 	}
-	if co.DefVal != nil {
+	if co.DefVal != nil && *co.DefVal != "" {
 		b.WriteString(" DEFAULT ")
 		b.WriteString(*co.DefVal)
 	}
@@ -64,7 +66,7 @@ func (db *PgColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 		b.WriteString(" USING ")
 		b.WriteString(*co.Name)
 		t := *co.Type
-		if strings.Index(t, "(") != -1 {
+		if strings.Contains(t, "(") {
 			t = t[0:strings.Index(t, "(")]
 		}
 		b.WriteString("::")

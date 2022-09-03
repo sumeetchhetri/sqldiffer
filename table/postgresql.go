@@ -5,6 +5,7 @@ import (
 	sql "database/sql"
 	"regexp"
 	"strings"
+
 	//"fmt"
 	c "github.com/sumeetchhetri/sqldiffer/common"
 	//proto "github.com/golang/protobuf/proto"
@@ -64,7 +65,7 @@ func (db *PgTable) GenerateDel(tb *pb2.Table, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nDROP TABLE ")
 	b.WriteString(*tb.Name)
-	b.WriteString("\n")
+	b.WriteString(";\n")
 	return b.String()
 }
 

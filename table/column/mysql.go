@@ -5,8 +5,10 @@ import (
 	sql "database/sql"
 	"fmt"
 	"regexp"
-	c "github.com/sumeetchhetri/sqldiffer/common"
 	"strings"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//proto "github.com/golang/protobuf/proto"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
@@ -63,7 +65,7 @@ func (db *MysqlColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 		b.WriteString(" USING ")
 		b.WriteString(*co.Name)
 		t := *co.Type
-		if strings.Index(t, "(") != -1 {
+		if strings.Contains(t, "(") {
 			t = t[0:strings.Index(t, "(")]
 		}
 		b.WriteString("::")

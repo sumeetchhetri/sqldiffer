@@ -58,6 +58,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         echo "::add-path::C:\temp\basic\instantclient_21_3"
+        echo "::add-path::C:\Strawberry\perl\bin"
         echo '::set-env name=CGO_CFLAGS::-IC:\temp\basic\instantclient_21_3\sdk\include'
         echo '::set-env name=CGO_LDFLAGS::-LC:\temp\basic\instantclient_21_3\sdk\lib\msvc -lstdc++ -loci'
         echo '::set-env name=PKG_CONFIG_PATH::C:\temp'
@@ -75,7 +76,7 @@ jobs:
         mv instantclient_21_3/sdk basic/instantclient_21_3/
         cd D:\a\sqldiffer\sqldiffer
         cp oci8-win.pc c:\temp\oci8.pc
-        git checkout schema_gen/schema_gen.go  go.mod  go.sum
+        git checkout schema_gen/schema_gen.go go.mod go.sum
         make all
         dir bin
         cd bin
