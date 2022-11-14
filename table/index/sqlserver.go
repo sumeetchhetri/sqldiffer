@@ -3,7 +3,10 @@ package index
 import (
 	"bytes"
 	sql "database/sql"
+	"strings"
+
 	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
@@ -16,9 +19,31 @@ type SqlsIndex struct {
 //GenerateNew -
 func (db *SqlsIndex) GenerateNew(in *pb2.Index, context interface{}) string {
 	var b bytes.Buffer
-	b.WriteString("\nGO\nCREATE INDEX ")
+	b.WriteString("\nGO\nCREATE ")
+	var cexp, uniq string
+	v, ok := in.Props["Arg1"]
+	if ok {
+		cexp = v
+	}
+	v, ok = in.Props["Arg2"]
+	if ok {
+		uniq = v
+	}
+	if uniq == "UNIQUE" {
+		b.WriteString(uniq)
+		b.WriteString(" ")
+	}
+	b.WriteString("INDEX ")
 	b.WriteString(*in.Name)
-	b.WriteString(";\n")
+	b.WriteString(" ON ")
+	b.WriteString(*in.TableName)
+	b.WriteString("(")
+	if cexp != "" {
+		b.WriteString(cexp)
+	} else {
+		b.WriteString(strings.Join(in.Columns, ","))
+	}
+	b.WriteString(");\n/")
 	return b.String()
 }
 
