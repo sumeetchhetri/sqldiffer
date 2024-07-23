@@ -64,7 +64,7 @@ jobs:
         wget -q https://download.oracle.com/otn_software/mac/instantclient/233023/instantclient-sdk-macos.arm64-23.3.0.23.09.dmg
         sudo hdiutil attach instantclient-basic-macos.arm64-23.3.0.23.09-1.dmg
         sudo hdiutil attach instantclient-sdk-macos.arm64-23.3.0.23.09.dmg
-        cd /Volumes/instantclient-basic-macos.arm64-23.3.0.23.09-1
+        cd /Volumes/instantclient-basic-macos.arm64-23.3.0.23.09
         ./install_ic.sh
         cd /Volumes/instantclient-sdk-macos.arm64-23.3.0.23.09
         ./install_ic.sh
