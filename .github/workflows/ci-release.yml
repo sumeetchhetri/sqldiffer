@@ -12,7 +12,7 @@ jobs:
     #if: "!contains(github.event.head_commit.message, '[skip_build]')"
     strategy:
       matrix:
-        os: [macOS-latest]
+        os: [macOS-13]
     steps:
     - uses: actions/checkout@v2
     - name: Extract branch name
@@ -159,7 +159,7 @@ jobs:
     #if: "!contains(github.event.head_commit.message, '[skip_build]')"
     strategy:
       matrix:
-        os: [macOS-latest]
+        os: [macos-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Build
@@ -210,3 +210,4 @@ jobs:
         asset_path: /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_name: sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_content_type: application/gzip
+g
