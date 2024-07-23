@@ -7,7 +7,7 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  macos:
+  macos_intel:
     runs-on: ${{ matrix.os }}
     #if: "!contains(github.event.head_commit.message, '[skip_build]')"
     strategy:
@@ -22,10 +22,11 @@ jobs:
     - name: Install docker
       run: |
         brew install docker
-        export PATH=/opt/homebrew/bin:${PATH}
-        arch -arm64 brew install lima
+#       export PATH=/opt/homebrew/bin:${PATH}
+#       arch -arm64 brew install lima
         brew install colima
-        colima start --cpu 2 --memory 4 --disk 50 --arch x86_64
+        colima start
+#       colima start --cpu 2 --memory 4 --disk 50 --arch x86_64
     - name: Build
       run: |
         brew install go pkg-config protobuf protoc-gen-go
@@ -46,14 +47,14 @@ jobs:
         docker build -f Dockerfile -t temp/sqloci:1.0 .
         ls -ltr bin/
         mkdir /tmp/bin
-        cd bin && zip -r sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx.zip * && cp sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx.zip /tmp/bin/
-        unzip -l /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx.zip
+        cd bin && zip -r sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip * && cp sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip /tmp/bin/
+        unzip -l /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
         cd ..
         rm -rf bin
         make all_wo_orcl
         ls -ltr bin/
-        cd bin && zip -r sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx.zip * && cp sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx.zip /tmp/bin/
-        unzip -l /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx.zip        
+        cd bin && zip -r sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx_intel.zip * && cp sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx_intel.zip /tmp/bin/
+        unzip -l /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx_intel.zip        
         cd /tmp/bin
         mkdir bin_with_orcl bin_wo bin_with_orcl_wver bin_wo_wver
         docker create -ti --name sqloci temp/sqloci:1.0 bash
@@ -93,14 +94,14 @@ jobs:
         release_name: Release ${{ steps.extract_branch.outputs.branch }}
         tag_name: ${{ github.ref }}
 
-    - name: upload darwin artifact no oracle
+    - name: upload darwin-intel artifact no oracle
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx.zip
-        asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx.zip
+        asset_path: /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx_intel.zip
+        asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_macosx_intel.zip
         asset_content_type: application/gzip
 
     - name: upload linux artifact no oracle
@@ -123,14 +124,14 @@ jobs:
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
         asset_content_type: application/gzip
 
-    - name: upload darwin artifact with oracle
+    - name: upload darwin-intel artifact with oracle
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx.zip
-        asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx.zip
+        asset_path: /tmp/bin/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
+        asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
         asset_content_type: application/gzip
 
     - name: upload linux artifact with oracle
@@ -151,5 +152,62 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/bin_with_orcl_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
+        asset_content_type: application/gzip
+  macos_arm:
+    runs-on: ${{ matrix.os }}
+    needs: macos_intel
+    #if: "!contains(github.event.head_commit.message, '[skip_build]')"
+    strategy:
+      matrix:
+        os: [macOS-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        brew install go pkg-config protobuf protoc-gen-go
+        pushd /tmp
+        wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-basic-macos.x64-19.8.0.0.0dbru.dmg
+        wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-sdk-macos.x64-19.8.0.0.0dbru.dmg
+        sudo hdiutil attach instantclient-basic-macos.x64-19.8.0.0.0dbru.dmg
+        sudo hdiutil attach instantclient-sdk-macos.x64-19.8.0.0.0dbru.dmg
+        cd /Volumes/instantclient-basic-macos.x64-19.8.0.0.0dbru
+        ./install_ic.sh
+        cd /Volumes/instantclient-sdk-macos.x64-19.8.0.0.0dbru
+        ./install_ic.sh
+        popd
+        cp oci8-macos.pc /Users/runner/Downloads/instantclient_19_8/oci8.pc
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/Users/runner/Downloads/instantclient_19_8
+        export PKG_CONFIG_PATH=/Users/runner/Downloads/instantclient_19_8
+        make all
+        docker build -f Dockerfile -t temp/sqloci:1.0 .
+        ls -ltr bin/
+        mkdir /tmp/bin
+        cd bin && zip -r sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip * && cp sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip /tmp/bin/
+        unzip -l /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
+        cd ..
+        rm -rf bin
+        make all_wo_orcl
+        ls -ltr bin/
+        cd bin && zip -r sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_macosx_arm.zip * && cp sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_macosx_arm.zip /tmp/bin/
+        unzip -l /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_macosx_arm.zip
+
+    - name: upload darwin-arm artifact no oracle
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ needs.macos_intel.create_release.outputs.upload_url }}
+        asset_path: /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_macosx_arm.zip
+        asset_name: sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_macosx_arm.zip
+        asset_content_type: application/gzip
+
+    - name: upload darwin-arm artifact with oracle
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ needs.macos_intel.create_release.outputs.upload_url }}
+        asset_path: /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
+        asset_name: sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_content_type: application/gzip
 
