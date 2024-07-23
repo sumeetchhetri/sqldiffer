@@ -1,9 +1,9 @@
-FROM oraclelinux:8
+FROM oraclelinux:9
 
-RUN  dnf -y install make git unzip oracle-instantclient-release-el8 && \
-     dnf -y install oracle-instantclient-basic oracle-instantclient-devel oracle-instantclient-sqlplus && \
-	 dnf -y module install go-toolset && \
-	 dnf config-manager --set-enabled ol8_codeready_builder && \
+RUN  dnf -y install make git unzip oracle-instantclient-release-el9 && \
+     dnf -y install oracle-instantclient19.19-basic.x86_64 oracle-instantclient19.19-devel.x86_64 oracle-instantclient19.19-sqlplus.x86_64 && \
+	 dnf -y install go-toolset && \
+	 dnf config-manager --set-enabled ol9_codeready_builder && \
 	 dnf -y install mingw64-cpp mingw64-gcc mingw64-gcc-c++ && \
      rm -rf /var/cache/dnf
 
@@ -18,7 +18,7 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 WORKDIR /root/go/src
 RUN git clone https://github.com/sumeetchhetri/sqldiffer
 COPY oci8.pc /usr/lib64/pkgconfig/
-COPY go.mod /root/go/src/sqldiffer/
+COPY go.mod go.sum /root/go/src/sqldiffer/
 ENV PATH="$PATH:/root/go/bin"
 WORKDIR /root/go/src/sqldiffer
 #COPY Makefile /root/go/src/sqldiffer/

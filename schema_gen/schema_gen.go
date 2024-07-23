@@ -14,7 +14,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
 
-	_ "github.com/mattn/go-oci8"
+	_ "github.com/godror/godror"
 	c "github.com/sumeetchhetri/sqldiffer/common"
 	db "github.com/sumeetchhetri/sqldiffer/db"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"

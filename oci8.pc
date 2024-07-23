@@ -1,5 +1,5 @@
-libdir=/usr/lib/oracle/21/client64/lib
-includedir=/usr/include/oracle/21/client64
+libdir=/usr/lib/oracle/19_9/client64/lib
+includedir=/usr/include/oracle/19_9/client64
 
 glib_genmarshal=glib-genmarshal
 gobject_query=gobject-query
@@ -9,4 +9,4 @@ Name: oci8
 Description: oci8 library
 Libs: -L${libdir} -lclntsh
 Cflags: -I${includedir}
-Version: 21
+Version: 19.9
