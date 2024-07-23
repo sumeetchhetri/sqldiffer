@@ -22,11 +22,11 @@ jobs:
     - name: Install docker
       run: |
         brew install docker
-#       export PATH=/opt/homebrew/bin:${PATH}
-#       arch -arm64 brew install lima
+        #export PATH=/opt/homebrew/bin:${PATH}
+        #arch -arm64 brew install lima
         brew install colima
         colima start
-#       colima start --cpu 2 --memory 4 --disk 50 --arch x86_64
+        #colima start --cpu 2 --memory 4 --disk 50 --arch x86_64
     - name: Build
       run: |
         brew install go pkg-config protobuf protoc-gen-go
@@ -210,4 +210,3 @@ jobs:
         asset_path: /tmp/bin/sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_name: sqldiffer_${{ needs.macos_intel.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_content_type: application/gzip
-
