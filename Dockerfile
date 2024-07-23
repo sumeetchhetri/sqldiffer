@@ -18,6 +18,7 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 WORKDIR /root/go/src
 RUN git clone https://github.com/sumeetchhetri/sqldiffer
 COPY oci8.pc /usr/lib64/pkgconfig/
+COPY go.mod /root/go/src/sqldiffer/
 ENV PATH="$PATH:/root/go/bin"
 WORKDIR /root/go/src/sqldiffer
 #COPY Makefile /root/go/src/sqldiffer/
@@ -41,6 +42,7 @@ RUN unzip -qq instantclient-sdk-windows.x64-21.3.0.0.0.zip && mv instantclient_2
 RUN mv basic/instantclient_21_3/ /root/instantclient_21_3_win
 WORKDIR /root/go/src/sqldiffer
 RUN git checkout schema_gen/schema_gen.go  go.mod  go.sum
+COPY go.mod /root/go/src/sqldiffer/
 RUN make clean
 RUN make ORCL_INSCL_PATH=/root/instantclient_21_3_win CROSS_CC=x86_64-w64-mingw32-gcc CROSS_CXX=x86_64-w64-mingw32-g++ win_version
 RUN ls -ltr /root/go/src/sqldiffer/bin
