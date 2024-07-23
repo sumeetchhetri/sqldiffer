@@ -17,7 +17,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Extract branch name
       shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/tags/})"
+      run: echo "branch=$(echo ${GITHUB_REF#refs/tags/})" >> "$GITHUB_OUTPUT"
+      #run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/tags/})"
       id: extract_branch
     - name: Build
       run: |
@@ -51,10 +52,11 @@ jobs:
         zip -r sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip schema_gen.exe diff_gen.exe
         unzip -l /tmp/bin/bin_wo_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
     - name: Create Release
-      uses: actions/create-release@latest
+      uses: elgohr/Github-Release-Action@v5
       id: create_release
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         draft: false
         prerelease: false
@@ -63,7 +65,7 @@ jobs:
     - name: upload linux artifact no oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/bin_wo/sqldiffer_${{ steps.extract_branch.outputs.branch }}_linux-x86_64.zip
@@ -72,7 +74,7 @@ jobs:
     - name: upload windows artifact no oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/bin_wo_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
@@ -81,7 +83,7 @@ jobs:
     - name: upload linux artifact with oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/bin_with_orcl/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_linux-x86_64.zip
@@ -90,7 +92,7 @@ jobs:
     - name: upload windows artifact with oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/bin_with_orcl_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
@@ -143,7 +145,7 @@ jobs:
     - name: upload darwin-intel artifact no oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip
@@ -152,7 +154,7 @@ jobs:
     - name: upload darwin-intel artifact with oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
@@ -199,7 +201,7 @@ jobs:
     - name: upload darwin-arm artifact no oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_arm.zip
@@ -209,7 +211,7 @@ jobs:
     - name: upload darwin-arm artifact with oracle
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
         asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
