@@ -21,8 +21,11 @@ jobs:
       id: extract_branch
     - name: Install docker
       run: |
-        brew install docker colima
-        colima start
+        brew install docker
+        export PATH=/opt/homebrew/bin:${PATH}
+        arch -arm64 brew install lima
+        brew install colima
+        colima start --cpu 2 --memory 4 --disk 50 --arch x86_64
     - name: Build
       run: |
         brew install go pkg-config protobuf protoc-gen-go
