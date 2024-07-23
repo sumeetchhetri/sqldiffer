@@ -64,39 +64,43 @@ jobs:
         title: Release ${{ steps.extract_branch.outputs.branch }}
         tag_name: ${{ github.ref }}
     - name: upload linux artifact no oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/bin_wo/sqldiffer_${{ steps.extract_branch.outputs.branch }}_linux-x86_64.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/bin_wo/sqldiffer_${{ steps.extract_branch.outputs.branch }}_linux-x86_64.zip
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_linux-x86_64.zip
         asset_content_type: application/gzip
     - name: upload windows artifact no oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/bin_wo_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/bin_wo_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_win.zip
         asset_content_type: application/gzip
     - name: upload linux artifact with oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/bin_with_orcl/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_linux-x86_64.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/bin_with_orcl/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_linux-x86_64.zip
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_linux-x86_64.zip
         asset_content_type: application/gzip
     - name: upload windows artifact with oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/bin_with_orcl_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/bin_with_orcl_wver/sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
         asset_name: sqldiffer_${{ steps.extract_branch.outputs.branch }}_withorcl_win.zip
         asset_content_type: application/gzip
   macos_intel:
@@ -144,21 +148,23 @@ jobs:
         cd bin && zip -r sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip * && cp sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip /tmp/bin/
         unzip -l /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip        
     - name: upload darwin-intel artifact no oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip
         asset_name: sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_intel.zip
         asset_content_type: application/gzip
     - name: upload darwin-intel artifact with oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
         asset_name: sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_intel.zip
         asset_content_type: application/gzip
   macos_arm:
@@ -200,21 +206,23 @@ jobs:
         unzip -l /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_arm.zip
 
     - name: upload darwin-arm artifact no oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_arm.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_arm.zip
         asset_name: sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_macosx_arm.zip
         asset_content_type: application/gzip
 
     - name: upload darwin-arm artifact with oracle
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.linux.create_release.outputs.upload_url }}
-        asset_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
+        tag_name: ${{ steps.extract_branch.outputs.branch }}
+        body_path: /tmp/bin/sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_name: sqldiffer_${{ needs.linux.extract_branch.outputs.branch }}_withorcl_macosx_arm.zip
         asset_content_type: application/gzip
