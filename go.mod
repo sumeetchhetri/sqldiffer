@@ -2,7 +2,7 @@ module github.com/sumeetchhetri/sqldiffer
 
 go 1.21
 
-//toolchain go1.22.0
+//toolchain go1.22.0 -- this is needed only for go versions > 1.21
 
 require (
 	github.com/denisenkom/go-mssqldb v0.12.2

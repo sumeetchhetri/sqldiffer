@@ -1,4 +1,4 @@
-prefixdir=/Users/runner/Downloads/instantclient_19_8/
+prefixdir=/Users/runner/Downloads/instantclient_23_3/
 libdir=${prefixdir}
 includedir=${prefixdir}/sdk/include
 
