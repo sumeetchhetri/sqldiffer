@@ -4,9 +4,11 @@ import (
 	"bytes"
 	sql "database/sql"
 	"fmt"
+	"strconv"
+	"strings"
+
 	c "github.com/sumeetchhetri/sqldiffer/common"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
-	"strings"
 )
 
 //PgStoredProcedure -
@@ -42,18 +44,42 @@ func (db *PgStoredProcedure) GenerateDel(sp *pb2.StoredProcedure, context interf
 
 //Query -
 func (db *PgStoredProcedure) Query(context interface{}) string {
-	return `SELECT DISTINCT quote_ident(p.proname) as function, pg_get_functiondef(p.oid),
-			'CREATE OR REPLACE FUNCTION ' || p.proname  || '(' || pg_catalog.pg_get_function_arguments(p.oid) || ');\',
-			'DROP FUNCTION ' || p.oid::regprocedure, pronargs 
-			FROM pg_catalog.pg_proc p 
-			JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace  
-			WHERE n.nspname = ANY (current_schemas(false)) 
-			and p.proname not like 'pgpool_%' 
-			and p.proname not like 'pcp_%' 
-			and p.proname not like 'dblink%' 
-			and p.proname not like 'uuid_%' 
-			and p.proname not like 'pg%' 
-			and pg_catalog.pg_get_function_result(p.oid) <> 'trigger'`
+	args := context.([]interface{})
+	dbvers, _ := strconv.Atoi(args[1].(string))
+	if dbvers < 110000 {
+		return `SELECT DISTINCT quote_ident(p.proname) as function, pg_get_functiondef(p.oid),
+				'CREATE OR REPLACE FUNCTION ' || p.proname  || '(' || pg_catalog.pg_get_function_arguments(p.oid) || ');\',
+				'DROP FUNCTION ' || p.oid::regprocedure, pronargs 
+				FROM pg_catalog.pg_proc p 
+				JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace  
+				WHERE n.nspname = ANY (current_schemas(false)) 
+				and p.proname not like 'pgpool_%' 
+				and p.proname not like 'pcp_%' 
+				and p.proname not like 'dblink%' 
+				and p.proname not like 'uuid_%' 
+				and p.proname not like 'pg%' 
+				and p.proname not like 'st_%' 
+				and p.proname not like '_st_%' 
+				and p.proname not like 'postgis_%' 
+				and not p.proisagg and not p.proiswindow
+				and pg_catalog.pg_get_function_result(p.oid) <> 'trigger';`
+	} else {
+		return `SELECT DISTINCT quote_ident(p.proname) as function, pg_get_functiondef(p.oid),
+				'CREATE OR REPLACE FUNCTION ' || p.proname  || '(' || pg_catalog.pg_get_function_arguments(p.oid) || ');\',
+				'DROP FUNCTION ' || p.oid::regprocedure, pronargs 
+				FROM pg_catalog.pg_proc p 
+				JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace  
+				left outer join pg_catalog.pg_depend d ON d.objid = p.oid AND d.deptype = 'e'
+				WHERE n.nspname = ANY (current_schemas(false)) 
+				and p.proname not like 'pgpool_%' 
+				and p.proname not like 'pcp_%' 
+				and p.proname not like 'dblink%' 
+				and p.proname not like 'uuid_%' 
+				and p.proname not like 'pg%' 
+				AND d.objid IS NULL
+				AND p.prokind = 'f'
+				and pg_catalog.pg_get_function_result(p.oid) <> 'trigger';`
+	}
 }
 
 //FromResult -

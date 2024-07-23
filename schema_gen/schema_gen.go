@@ -13,6 +13,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	flags "github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
+
 	_ "github.com/mattn/go-oci8"
 	c "github.com/sumeetchhetri/sqldiffer/common"
 	db "github.com/sumeetchhetri/sqldiffer/db"
@@ -228,11 +229,23 @@ func objectifyStoredProcedures(action *c.SchemaDiffAction, tdb *pb2.Db, wg *sync
 
 	db := getConn(action)
 
+	cntxt := make([]interface{}, 0)
+	cntxt = append(cntxt, *tdb.Name)
+	if tdb.Version == nil {
+		cntxt = append(cntxt, "")
+	} else {
+		cntxt = append(cntxt, *tdb.Version)
+	}
+
 	qt1 := time.Now()
 	//fmt.Println(action.StoredProcedure.Query(*tdb.Name))
-	rows, err := db.Query(action.StoredProcedure.Query(*tdb.Name))
+	rows, err := db.Query(action.StoredProcedure.Query(cntxt))
 	if err != nil {
-		c.Fatal("Error querying StoredProcedures", err)
+		if strings.Contains(err.Error(), " is an aggregate function") {
+			c.Warn("Error querying StoredProcedures", err)
+		} else {
+			c.Fatal("Error querying StoredProcedures", err)
+		}
 	}
 	qt2 := time.Now()
 

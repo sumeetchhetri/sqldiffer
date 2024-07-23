@@ -157,6 +157,11 @@ func Fatal(msg string, err error) {
 	os.Exit(2)
 }
 
+//Fatal -
+func Warn(msg string, err error) {
+	fmt.Println(msg, err)
+}
+
 //ColumnEq -
 func ColumnEq(t1, t2 *pb2.Column) bool {
 	if &t1 == &t2 {
