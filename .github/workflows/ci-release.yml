@@ -25,7 +25,7 @@ jobs:
         colima start
     - name: Build
       run: |
-        brew install pkg-config protobuf protoc-gen-go
+        brew install go pkg-config protobuf protoc-gen-go
         pushd /tmp
         wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-basic-macos.x64-19.8.0.0.0dbru.dmg
         wget -q https://download.oracle.com/otn_software/mac/instantclient/198000/instantclient-sdk-macos.x64-19.8.0.0.0dbru.dmg

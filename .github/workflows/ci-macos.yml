@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: |
-        brew install pkg-config protobuf protoc-gen-go
+        brew install pkg-config go protobuf protoc-gen-go
         make all_wo_orcl
         ls -ltr bin/
         ./bin/schema_gen --help
