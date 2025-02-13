@@ -13,7 +13,7 @@ import (
 	proto "google.golang.org/protobuf/proto"
 )
 
-//DbIntf - The Db Interface Type
+// DbIntf - The Db Interface Type
 type DbIntf interface {
 	GenerateURL(action *SchemaDiffAction) string
 	Version() string
@@ -23,7 +23,7 @@ type DbIntf interface {
 	CreateSchema(db *pb2.Db) string
 }
 
-//TableIntf - The Db Interface Type
+// TableIntf - The Db Interface Type
 type TableIntf interface {
 	GenerateNew(tbl *pb2.Table, context interface{}) string
 	GenerateUpd(tbl *pb2.Table, context interface{}) string
@@ -32,7 +32,7 @@ type TableIntf interface {
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Table
 }
 
-//ColumnIntf - The Db Interface Type
+// ColumnIntf - The Db Interface Type
 type ColumnIntf interface {
 	GenerateNew(tbl *pb2.Column, context interface{}) string
 	GenerateUpd(tbl *pb2.Column, context interface{}) string
@@ -41,7 +41,7 @@ type ColumnIntf interface {
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Table
 }
 
-//ConstraintIntf - The Db Interface Type
+// ConstraintIntf - The Db Interface Type
 type ConstraintIntf interface {
 	GenerateNew(tbl *pb2.Constraint, context interface{}) string
 	GenerateUpd(tbl *pb2.Constraint, context interface{}) string
@@ -51,7 +51,7 @@ type ConstraintIntf interface {
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Table
 }
 
-//IndexIntf - The Db Interface Type
+// IndexIntf - The Db Interface Type
 type IndexIntf interface {
 	GenerateNew(tbl *pb2.Index, context interface{}) string
 	GenerateUpd(tbl *pb2.Index, context interface{}) string
@@ -61,7 +61,7 @@ type IndexIntf interface {
 	FromResult(rows *sql.Rows, context interface{}) *pb2.Index
 }
 
-//TriggerIntf -
+// TriggerIntf -
 type TriggerIntf interface {
 	GenerateNew(tbl *pb2.Trigger, context interface{}) string
 	GenerateUpd(tbl *pb2.Trigger, context interface{}) string
@@ -72,7 +72,7 @@ type TriggerIntf interface {
 	GetDefinition(rows *sql.Rows) string
 }
 
-//ViewIntf - The Db Interface Type
+// ViewIntf - The Db Interface Type
 type ViewIntf interface {
 	GenerateNew(tbl *pb2.View, context interface{}) string
 	GenerateUpd(tbl *pb2.View, context interface{}) string
@@ -81,7 +81,7 @@ type ViewIntf interface {
 	FromResult(rows *sql.Rows, context interface{}) *pb2.View
 }
 
-//SequenceIntf - The Db Interface Type
+// SequenceIntf - The Db Interface Type
 type SequenceIntf interface {
 	GenerateNew(tbl *pb2.Sequence, context interface{}) string
 	GenerateUpd(tbl *pb2.Sequence, context interface{}) string
@@ -92,7 +92,7 @@ type SequenceIntf interface {
 	UpdateSequence(rows *sql.Rows, s *pb2.Sequence)
 }
 
-//StoredProcedureIntf -
+// StoredProcedureIntf -
 type StoredProcedureIntf interface {
 	GenerateNew(tbl *pb2.StoredProcedure, context interface{}) string
 	GenerateUpd(tbl *pb2.StoredProcedure, context interface{}) string
@@ -103,13 +103,13 @@ type StoredProcedureIntf interface {
 	Definition(rows *sql.Rows) string
 }
 
-//StoredProcedureParamIntf - The Db Interface Type
+// StoredProcedureParamIntf - The Db Interface Type
 type StoredProcedureParamIntf interface {
 	Query(context interface{}) string
 	FromResult(rows *sql.Rows, context interface{}) interface{}
 }
 
-//SchemaDiffAction -
+// SchemaDiffAction -
 type SchemaDiffAction struct {
 	Host                      *string
 	Port                      int32
@@ -151,18 +151,18 @@ type SchemaDiffAction struct {
 	Constraints               map[string]*pb2.Constraint
 }
 
-//Fatal -
+// Fatal -
 func Fatal(msg string, err error) {
 	fmt.Println(msg, err)
 	os.Exit(2)
 }
 
-//Fatal -
+// Fatal -
 func Warn(msg string, err error) {
 	fmt.Println(msg, err)
 }
 
-//ColumnEq -
+// ColumnEq -
 func ColumnEq(t1, t2 *pb2.Column) bool {
 	if &t1 == &t2 {
 		return true
@@ -182,7 +182,7 @@ func ColumnEq(t1, t2 *pb2.Column) bool {
 	return true
 }
 
-//TriggerEq -
+// TriggerEq -
 func TriggerEq(t1, t2 *pb2.Trigger) bool {
 	if &t1 == &t2 {
 		return true
@@ -208,7 +208,7 @@ func TriggerEq(t1, t2 *pb2.Trigger) bool {
 	return true
 }
 
-//IndexEq -
+// IndexEq -
 func IndexEq(t1, t2 *pb2.Index) bool {
 	if &t1 == &t2 {
 		return true
@@ -229,7 +229,7 @@ func IndexEq(t1, t2 *pb2.Index) bool {
 	return true
 }
 
-//ConstraintEq -
+// ConstraintEq -
 func ConstraintEq(t1, t2 *pb2.Constraint) bool {
 	if &t1 == &t2 {
 		return true
@@ -248,7 +248,7 @@ func ConstraintEq(t1, t2 *pb2.Constraint) bool {
 	return true
 }
 
-//SequenceEq -
+// SequenceEq -
 func SequenceEq(t1, t2 *pb2.Sequence) bool {
 	if &t1 == &t2 {
 		return true
@@ -265,7 +265,7 @@ func SequenceEq(t1, t2 *pb2.Sequence) bool {
 	return true
 }
 
-//ViewEq -
+// ViewEq -
 func ViewEq(t1, t2 *pb2.View) bool {
 	if &t1 == &t2 {
 		return true
@@ -285,7 +285,7 @@ func ViewEq(t1, t2 *pb2.View) bool {
 	return true
 }
 
-//StoredProcedureParamEq -
+// StoredProcedureParamEq -
 func StoredProcedureParamEq(t1, t2 *pb2.StoredProcedureParam) bool {
 	if &t1 == &t2 {
 		return true
@@ -308,7 +308,7 @@ func StoredProcedureParamEq(t1, t2 *pb2.StoredProcedureParam) bool {
 	return true
 }
 
-//StoredProcedureEq -
+// StoredProcedureEq -
 func StoredProcedureEq(t1, t2 *pb2.StoredProcedure) bool {
 	if &t1 == &t2 {
 		return true
@@ -346,7 +346,7 @@ func StoredProcedureEq(t1, t2 *pb2.StoredProcedure) bool {
 	return true
 }
 
-//TableEq -
+// TableEq -
 func TableEq(t1, t2 *pb2.Table) bool {
 	if &t1 == &t2 {
 		return true
@@ -423,7 +423,7 @@ func TableEq(t1, t2 *pb2.Table) bool {
 	return true
 }
 
-//StringEqualsIgnSpace -
+// StringEqualsIgnSpace -
 func StringEqualsIgnSpace(v1, v2 string) bool {
 	var re = regexp.MustCompile(`[\n\r\t\s]+`)
 	v1 = re.ReplaceAllString(v1, "")
@@ -431,7 +431,7 @@ func StringEqualsIgnSpace(v1, v2 string) bool {
 	return v1 == v2
 }
 
-//GetColumnFromRow -
+// GetColumnFromRow -
 func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	sp := pb2.Column{}
 
@@ -450,9 +450,9 @@ func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	}
 
 	if nn.Valid && nn.String == "Y" {
-		sp.Notnull = proto.Bool(true)
-	} else {
 		sp.Notnull = proto.Bool(false)
+	} else {
+		sp.Notnull = proto.Bool(true)
 	}
 	if prec.Valid {
 		sp.Precision = proto.Int64(prec.Int64)
@@ -487,7 +487,7 @@ func GetColumnFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	return nil
 }
 
-//GetSequenceFromRow -
+// GetSequenceFromRow -
 func GetSequenceFromRow(rows *sql.Rows) *pb2.Sequence {
 	sp := pb2.Sequence{}
 
@@ -514,7 +514,7 @@ func GetSequenceFromRow(rows *sql.Rows) *pb2.Sequence {
 	return &sp
 }
 
-//GetTableFromRow -
+// GetTableFromRow -
 func GetTableFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	sp := pb2.Table{}
 
@@ -533,7 +533,7 @@ func GetTableFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	return &sp
 }
 
-//GetTriggerFromRow -
+// GetTriggerFromRow -
 func GetTriggerFromRow(rows *sql.Rows, context interface{}) *pb2.Trigger {
 	sp := pb2.Trigger{}
 
@@ -567,7 +567,7 @@ func GetTriggerFromRow(rows *sql.Rows, context interface{}) *pb2.Trigger {
 	return &sp
 }
 
-//MergeDuplicates -
+// MergeDuplicates -
 func MergeDuplicates(triggers []*pb2.Trigger) []*pb2.Trigger {
 	utriggers := make([]*pb2.Trigger, 0)
 	utrgs := make(map[string][]*pb2.Trigger)
@@ -591,7 +591,7 @@ func MergeDuplicates(triggers []*pb2.Trigger) []*pb2.Trigger {
 	return utriggers
 }
 
-//GetIndexFromRow -
+// GetIndexFromRow -
 func GetIndexFromRow(rows *sql.Rows, context interface{}) *pb2.Index {
 	sp := pb2.Index{}
 	args := context.([]interface{})
@@ -647,7 +647,7 @@ func GetIndexFromRow(rows *sql.Rows, context interface{}) *pb2.Index {
 	return &sp
 }
 
-//GetConstraintFromRow -
+// GetConstraintFromRow -
 func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	sp := pb2.Constraint{}
 	args := context.([]interface{})
@@ -721,7 +721,7 @@ func GetConstraintFromRow(rows *sql.Rows, context interface{}) *pb2.Table {
 	return nil
 }
 
-//GetProcedureFromRow -
+// GetProcedureFromRow -
 func GetProcedureFromRow(rows *sql.Rows, context interface{}) *pb2.StoredProcedure {
 	sp := pb2.StoredProcedure{}
 	schemaName := context.(string)
@@ -751,7 +751,7 @@ func GetProcedureFromRow(rows *sql.Rows, context interface{}) *pb2.StoredProcedu
 	return &sp
 }
 
-//GetProcedureParamsFromRow -
+// GetProcedureParamsFromRow -
 func GetProcedureParamsFromRow(rows *sql.Rows, context interface{}) interface{} {
 	args := context.([]interface{})
 	pgsa := pb2.StoredProcedureParam{}
@@ -833,7 +833,7 @@ func GetProcedureParamsFromRow(rows *sql.Rows, context interface{}) interface{} 
 	return &pgsa
 }
 
-//GetViewFromRow -
+// GetViewFromRow -
 func GetViewFromRow(rows *sql.Rows, context interface{}) *pb2.View {
 	sp := pb2.View{}
 
@@ -848,7 +848,7 @@ func GetViewFromRow(rows *sql.Rows, context interface{}) *pb2.View {
 	return &sp
 }
 
-//GetSQLServerPreQuery -
+// GetSQLServerPreQuery -
 func GetSQLServerPreQuery() string {
 	return "\nSET ANSI_NULLS ON\nGO\nSET QUOTED_IDENTIFIER ON\nGO\n"
 }

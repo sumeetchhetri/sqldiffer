@@ -14,11 +14,11 @@ import (
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
-//PgColumn -
+// PgColumn -
 type PgColumn struct {
 }
 
-//GenerateNew -
+// GenerateNew -
 func (db *PgColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	var b strings.Builder
 	b.WriteString("\nALTER TABLE ")
@@ -34,7 +34,7 @@ func (db *PgColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	}
 	b.WriteString(" ")
 	b.WriteString(*co.Type)
-	if !*co.Notnull {
+	if *co.Notnull {
 		b.WriteString(" NOT NULL ")
 	}
 	if co.DefVal != nil && *co.DefVal != "" {
@@ -45,7 +45,7 @@ func (db *PgColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateUpd -
+// GenerateUpd -
 func (db *PgColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	var b strings.Builder
 	dstcol := context.(*pb2.Column)
@@ -105,7 +105,7 @@ func (db *PgColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateDel -
+// GenerateDel -
 func (db *PgColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nALTER TABLE ")
@@ -123,7 +123,7 @@ func (db *PgColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//Query -
+// Query -
 func (db *PgColumn) Query(context interface{}) string {
 	args := context.([]interface{})
 	return fmt.Sprintf(`
@@ -153,7 +153,7 @@ func (db *PgColumn) Query(context interface{}) string {
 		ORDER  BY table_name, ordinal_position limit %d offset %d`, args[1].(int), args[0].(int))
 }
 
-//FromResult -
+// FromResult -
 func (db *PgColumn) FromResult(rows *sql.Rows, context interface{}) *pb2.Table {
 	return c.GetColumnFromRow(rows, context)
 }

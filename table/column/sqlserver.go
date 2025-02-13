@@ -3,20 +3,23 @@ package column
 import (
 	sql "database/sql"
 	"fmt"
+
 	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//c "github.com/sumeetchhetri/sqldiffer/common"
 	//proto "github.com/golang/protobuf/proto"
 	"bytes"
-	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 	"strings"
+
+	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
-//SqlsColumn -
+// SqlsColumn -
 type SqlsColumn struct {
 	Column pb2.Column
 }
 
-//GenerateNew -
+// GenerateNew -
 func (db *SqlsColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	var b strings.Builder
 	b.WriteString("\nGO\nALTER TABLE [")
@@ -25,7 +28,7 @@ func (db *SqlsColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	b.WriteString(*co.Name)
 	b.WriteString("] ")
 	b.WriteString(*co.Type)
-	if co.Notnull != nil && *co.Notnull == true {
+	if *co.Notnull {
 		b.WriteString("NOT NULL")
 	} else {
 		b.WriteString("NULL")
@@ -34,7 +37,7 @@ func (db *SqlsColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateUpd -
+// GenerateUpd -
 func (db *SqlsColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	var b strings.Builder
 	dstcol := context.(*pb2.Column)
@@ -50,7 +53,7 @@ func (db *SqlsColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateDel -
+// GenerateDel -
 func (db *SqlsColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nGO\nALTER TABLE [")
@@ -61,15 +64,15 @@ func (db *SqlsColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//Query -
+// Query -
 func (db *SqlsColumn) Query(context interface{}) string {
 	args := context.([]interface{})
 	return fmt.Sprintf(`
 		SELECT ordinal_position AS position, 
 			column_name, 
 			CASE 
-				WHEN is_nullable = 'YES' THEN 'N' 
-				ELSE 'Y' 
+				WHEN is_nullable = 'YES' THEN 'Y'
+				ELSE 'N'
 			END              AS notnull, 
 			data_type, 
 			CASE 
@@ -92,7 +95,7 @@ func (db *SqlsColumn) Query(context interface{}) string {
 		offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
-//FromResult -
+// FromResult -
 func (db *SqlsColumn) FromResult(rows *sql.Rows, context interface{}) *pb2.Table {
 	return c.GetColumnFromRow(rows, context)
 }

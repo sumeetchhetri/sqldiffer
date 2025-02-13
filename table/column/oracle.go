@@ -4,7 +4,9 @@ import (
 	"bytes"
 	sql "database/sql"
 	"fmt"
+
 	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//"strings"
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
@@ -12,16 +14,16 @@ import (
 	//"strconv"
 )
 
-//OrclColumn -
+// OrclColumn -
 type OrclColumn struct {
 	Column *pb2.Column
 }
 
-//SetColumn -
+// SetColumn -
 func (db *OrclColumn) SetColumn(col *pb2.Column) {
 }
 
-//GenerateNew -
+// GenerateNew -
 func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nALTER TABLE \"")
@@ -32,8 +34,8 @@ func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	b.WriteString("\"")
 	b.WriteString(" ")
 	b.WriteString(*co.Type)
-	if !*co.Notnull {
-		//b.WriteString(" NOT NULL ");
+	if *co.Notnull {
+		b.WriteString(" NOT NULL ")
 	}
 	if co.DefVal != nil && *co.DefVal != "" {
 		b.WriteString(" DEFAULT ")
@@ -43,7 +45,7 @@ func (db *OrclColumn) GenerateNew(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateUpd -
+// GenerateUpd -
 func (db *OrclColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
 	dstcol := context.(*pb2.Column)
@@ -74,7 +76,7 @@ func (db *OrclColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 		b.WriteString("\"")
 		b.WriteString(*co.Name)
 		b.WriteString("\"")
-		if "null" == *co.DefVal {
+		if *co.DefVal == "null" {
 			b.WriteString(" NOT NULL ENABLE ")
 		} else {
 			b.WriteString(" DROP DEFAULT ")
@@ -85,7 +87,7 @@ func (db *OrclColumn) GenerateUpd(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//GenerateDel -
+// GenerateDel -
 func (db *OrclColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nALTER TABLE \"")
@@ -98,14 +100,14 @@ func (db *OrclColumn) GenerateDel(co *pb2.Column, context interface{}) string {
 	return b.String()
 }
 
-//Query -
+// Query -
 func (db *OrclColumn) Query(context interface{}) string {
 	args := context.([]interface{})
 	return fmt.Sprintf(`SELECT column_id,column_name,nullable,data_type,data_length,data_precision,data_scale,data_default,table_name,0 rn 
 		from user_tab_columns offset %d rows fetch next %d rows only`, args[0].(int), args[1].(int))
 }
 
-//FromResult -
+// FromResult -
 func (db *OrclColumn) FromResult(rows *sql.Rows, context interface{}) *pb2.Table {
 	return c.GetColumnFromRow(rows, context)
 }

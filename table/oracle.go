@@ -3,18 +3,20 @@ package table
 import (
 	"bytes"
 	sql "database/sql"
-	c "github.com/sumeetchhetri/sqldiffer/common"
 	"strings"
+
+	c "github.com/sumeetchhetri/sqldiffer/common"
+
 	//"fmt"
 	//proto "github.com/golang/protobuf/proto"
 	pb2 "github.com/sumeetchhetri/sqldiffer/protos"
 )
 
-//OrclTable -
+// OrclTable -
 type OrclTable struct {
 }
 
-//GenerateNew -
+// GenerateNew -
 func (db OrclTable) GenerateNew(tb *pb2.Table, context interface{}) string {
 	var b strings.Builder
 	if !*tb.IsTemp {
@@ -34,7 +36,7 @@ func (db OrclTable) GenerateNew(tb *pb2.Table, context interface{}) string {
 		b.WriteString(*c.Type)
 		b.WriteString(" ")
 		if c.Notnull != nil && *c.Notnull == true {
-			//b.WriteString("NOT NULL ")
+			b.WriteString("NOT NULL ")
 		}
 		if c.DefVal != nil && strings.TrimSpace(*c.DefVal) != "" {
 			b.WriteString("DEFAULT ")
@@ -60,12 +62,12 @@ func (db OrclTable) GenerateNew(tb *pb2.Table, context interface{}) string {
 	return b.String()
 }
 
-//GenerateUpd -
+// GenerateUpd -
 func (db OrclTable) GenerateUpd(tb *pb2.Table, context interface{}) string {
 	return ""
 }
 
-//GenerateDel -
+// GenerateDel -
 func (db OrclTable) GenerateDel(tb *pb2.Table, context interface{}) string {
 	var b bytes.Buffer
 	b.WriteString("\nDROP TABLE ")
@@ -74,12 +76,12 @@ func (db OrclTable) GenerateDel(tb *pb2.Table, context interface{}) string {
 	return b.String()
 }
 
-//Query -
+// Query -
 func (db OrclTable) Query(context interface{}) string {
 	return "SELECT table_name,temporary from user_tables"
 }
 
-//FromResult -
+// FromResult -
 func (db OrclTable) FromResult(rows *sql.Rows, context interface{}) *pb2.Table {
 	return c.GetTableFromRow(rows, context)
 }
