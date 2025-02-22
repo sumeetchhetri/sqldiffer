@@ -5,8 +5,8 @@ glib_genmarshal=glib-genmarshal
 gobject_query=gobject-query
 glib_mkenums=glib-mkenums
 
-Name: oci8
-Description: oci8 library
+Name: OCI
+Description: oci library
 Libs: -L${libdir} -loci
 Cflags: -I${includedir}
 Version: 21.3

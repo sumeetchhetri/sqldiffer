@@ -108,7 +108,7 @@ func generateSchema(action *c.SchemaDiffAction) {
 		tdb.Type = &ps
 	} else if *action.DatabaseType == "oracle" {
 		tdb.SchemaName = action.User
-		*action.DatabaseType = "oci8"
+		*action.DatabaseType = "godror"
 		action.Db = &db.OrclDb{}
 		action.Table = &tb.OrclTable{}
 		action.Column = &co.OrclColumn{}
@@ -196,7 +196,7 @@ func generateSchema(action *c.SchemaDiffAction) {
 	//Change the type to oracle as goracle is only needed for sql
 	//driver connection, the value that is persisted is always oracle
 	//for oracle database
-	if *action.DatabaseType == "oci8" {
+	if *action.DatabaseType == "godror" {
 		*action.DatabaseType = "oracle"
 	}
 
